@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 const navLinks = [
   { label: "About", href: "#about" },
   { label: "Courses", href: "#courses" },
-  { label: "Certifications", href: "#certifications" },
+  { label: "Workshops", href: "#workshops" },
+  { label: "Certificate", href: "#certificate" },
+  { label: "Testimonials", href: "#testimonials" },
+  { label: "Gallery", href: "#gallery" },
+  { label: "Blogs", href: "#blogs" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -56,11 +60,8 @@ export const Header = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Button variant="ghost" size="sm">
-              Sign In
-            </Button>
             <Button variant="hero" size="sm">
-              Enroll Now
+              Get Started
             </Button>
           </motion.div>
 
@@ -98,11 +99,8 @@ export const Header = () => {
                 </a>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Button variant="ghost" size="sm">
-                  Sign In
-                </Button>
                 <Button variant="hero" size="sm">
-                  Enroll Now
+                  Get Started
                 </Button>
               </div>
             </nav>
