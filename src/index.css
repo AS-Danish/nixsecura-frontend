@@ -59,6 +59,7 @@
     --shadow-glow: 0 0 40px hsl(213 94% 50% / 0.25);
     --shadow-button: 0 4px 14px -3px hsl(213 94% 50% / 0.4);
     --shadow-button-hover: 0 8px 25px -5px hsl(213 94% 50% / 0.5);
+    --shadow-hero: 0 25px 50px -12px hsl(215 25% 15% / 0.15), 0 12px 24px -8px hsl(213 94% 50% / 0.08);
 
     /* Sidebar tokens */
     --sidebar-background: 0 0% 98%;
