@@ -81,6 +81,7 @@ export default {
         glow: "var(--shadow-glow)",
         button: "var(--shadow-button)",
         "button-hover": "var(--shadow-button-hover)",
+        hero: "var(--shadow-hero)",
       },
       keyframes: {
         "accordion-down": {
