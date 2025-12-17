@@ -112,38 +112,55 @@ export const HeroCarousel = () => {
       {/* Reactive background */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
-          className="absolute inset-0 bg-gradient-mesh"
+          className="absolute inset-0"
           animate={{
             background: [
-              `radial-gradient(ellipse at ${30 + currentSlide * 20}% ${40 + currentSlide * 10}%, hsl(var(--primary) / 0.06) 0%, transparent 50%)`,
+              `radial-gradient(ellipse at ${30 + currentSlide * 20}% ${40 + currentSlide * 10}%, hsl(var(--primary) / 0.08) 0%, transparent 50%)`,
             ],
           }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
         />
         
-        {/* Subtle blueprint grid */}
-        <div 
-          className="absolute inset-0 opacity-[0.015]"
+        {/* Animated grid pattern */}
+        <motion.div 
+          className="absolute inset-0 opacity-[0.02]"
           style={{
             backgroundImage: `
               linear-gradient(hsl(var(--primary)) 1px, transparent 1px),
               linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)
             `,
-            backgroundSize: '80px 80px',
-          }}
-        />
-
-        {/* Floating ambient particles */}
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--accent) / 0.04) 0%, transparent 70%)',
+            backgroundSize: '60px 60px',
           }}
           animate={{
-            x: [0, 30, 0],
-            y: [0, -20, 0],
+            backgroundPosition: ['0px 0px', '60px 60px'],
           }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        />
+
+        {/* Floating gradient orbs */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, hsl(var(--primary) / 0.06) 0%, transparent 70%)',
+          }}
+          animate={{
+            x: [0, 50, 0],
+            y: [0, -30, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        />
+        
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, hsl(var(--accent) / 0.05) 0%, transparent 70%)',
+          }}
+          animate={{
+            x: [0, -40, 0],
+            y: [0, 40, 0],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 
@@ -316,6 +333,43 @@ export const HeroCarousel = () => {
             </motion.div>
           </div>
         </div>
+
+        {/* Animated Stats Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5, duration: 0.6 }}
+          className="mt-16 lg:mt-20"
+        >
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50 p-6 lg:p-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+              {[
+                { value: "5,000+", label: "Students Trained" },
+                { value: "95%", label: "Placement Rate" },
+                { value: "50+", label: "Expert Instructors" },
+                { value: "100+", label: "Lab Scenarios" },
+              ].map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.7 + index * 0.1 }}
+                  className="text-center"
+                >
+                  <motion.div 
+                    className="text-2xl lg:text-3xl font-bold gradient-text mb-1"
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 1.8 + index * 0.1, type: "spring" }}
+                  >
+                    {stat.value}
+                  </motion.div>
+                  <div className="text-xs lg:text-sm text-muted-foreground">{stat.label}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Bottom gradient fade */}

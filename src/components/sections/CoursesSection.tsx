@@ -1,51 +1,8 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const courses = [
-  {
-    id: 1,
-    title: "Ethical Hacking & Penetration Testing",
-    description: "Master the art of identifying vulnerabilities and securing systems against real-world cyber threats.",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&h=400&fit=crop",
-    category: "Advanced",
-  },
-  {
-    id: 2,
-    title: "Network Security Fundamentals",
-    description: "Build a strong foundation in network defense, firewall configuration, and intrusion detection systems.",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=400&fit=crop",
-    category: "Beginner",
-  },
-  {
-    id: 3,
-    title: "Cyber Security Analyst Program",
-    description: "Comprehensive training to become a certified security analyst with hands-on SOC experience.",
-    image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=400&fit=crop",
-    category: "Professional",
-  },
-  {
-    id: 4,
-    title: "Cloud Security Architecture",
-    description: "Learn to secure cloud environments across AWS, Azure, and GCP with industry best practices.",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=400&fit=crop",
-    category: "Advanced",
-  },
-  {
-    id: 5,
-    title: "Digital Forensics & Incident Response",
-    description: "Develop skills in investigating cyber crimes and responding to security incidents effectively.",
-    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&h=400&fit=crop",
-    category: "Specialized",
-  },
-  {
-    id: 6,
-    title: "Web Application Security",
-    description: "Protect web applications from OWASP Top 10 vulnerabilities and secure the modern web stack.",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&h=400&fit=crop",
-    category: "Intermediate",
-  },
-];
+import { Link } from "react-router-dom";
+import { courses } from "@/data/courses";
 
 export const CoursesSection = () => {
   return (
@@ -98,17 +55,32 @@ export const CoursesSection = () => {
                 <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
                   {course.title}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+                <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
                   {course.description}
                 </p>
-                <Button 
-                  variant="hero-ghost" 
-                  size="sm" 
-                  className="w-full group/btn"
-                >
-                  View Course
-                  <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                </Button>
+                
+                {/* Course Meta */}
+                <div className="flex items-center gap-4 mb-6 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    {course.duration}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-primary" />
+                    {course.level}
+                  </span>
+                </div>
+
+                <Link to={`/course/${course.id}`}>
+                  <Button 
+                    variant="hero-ghost" 
+                    size="sm" 
+                    className="w-full group/btn"
+                  >
+                    View Course
+                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           ))}
