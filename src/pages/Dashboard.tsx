@@ -28,6 +28,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { ImageUpload } from "@/components/ImageUpload";
 
 // Sample data for UI
 const sampleBlogs = [
@@ -593,10 +594,7 @@ const Dashboard = () => {
                 </Select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Featured Image URL</Label>
-              <Input placeholder="https://..." />
-            </div>
+            <ImageUpload label="Featured Image" placeholder="Enter image URL or upload" />
             <div className="space-y-2">
               <Label>Excerpt</Label>
               <Textarea placeholder="Brief description..." rows={2} />
@@ -664,10 +662,7 @@ const Dashboard = () => {
                 </Select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Image URL</Label>
-              <Input placeholder="https://..." />
-            </div>
+            <ImageUpload label="Course Image" placeholder="Enter image URL or upload" />
             <div className="space-y-2">
               <Label>Description</Label>
               <Textarea placeholder="Course description..." rows={3} />
@@ -732,10 +727,7 @@ const Dashboard = () => {
                 </Select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Image URL</Label>
-              <Input placeholder="https://..." />
-            </div>
+            <ImageUpload label="Workshop Image" placeholder="Enter image URL or upload" />
             <div className="space-y-2">
               <Label>Description</Label>
               <Textarea placeholder="Workshop description..." rows={3} />
@@ -774,10 +766,7 @@ const Dashboard = () => {
                 </Select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Photo URL</Label>
-              <Input placeholder="https://..." />
-            </div>
+            <ImageUpload label="Student Photo" placeholder="Enter photo URL or upload" />
             <div className="space-y-2">
               <Label>Testimonial</Label>
               <Textarea placeholder="What the student said..." rows={4} />
@@ -819,10 +808,7 @@ const Dashboard = () => {
               <Label>Experience</Label>
               <Input placeholder="e.g., 10 years" defaultValue={facultyModal.data?.experience} />
             </div>
-            <div className="space-y-2">
-              <Label>Photo URL</Label>
-              <Input placeholder="https://..." />
-            </div>
+            <ImageUpload label="Faculty Photo" placeholder="Enter photo URL or upload" />
             <div className="space-y-2">
               <Label>Bio</Label>
               <Textarea placeholder="Brief biography..." rows={3} />
@@ -858,10 +844,7 @@ const Dashboard = () => {
               <Label>Year</Label>
               <Input placeholder="2024" defaultValue={certificateModal.data?.year} />
             </div>
-            <div className="space-y-2">
-              <Label>Certificate Image URL</Label>
-              <Input placeholder="https://..." />
-            </div>
+            <ImageUpload label="Certificate Image" placeholder="Enter image URL or upload" />
             <div className="space-y-2">
               <Label>Description</Label>
               <Textarea placeholder="Details about this recognition..." rows={3} />
@@ -897,10 +880,7 @@ const Dashboard = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Image URL</Label>
-              <Input placeholder="https://..." defaultValue={galleryModal.data?.image} />
-            </div>
+            <ImageUpload label="Gallery Image" placeholder="Enter image URL or upload" value={galleryModal.data?.image} />
             <div className="space-y-2">
               <Label>Alt Text</Label>
               <Input placeholder="Description for accessibility" />

@@ -153,15 +153,19 @@ const AllWorkshops = () => {
                     {/* CTA */}
                     <div className="flex gap-3">
                       {workshop.registrationOpen ? (
-                        <Button variant="hero" className="group">
-                          Register Now
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
+                        <Link to={`/workshop/${workshop.id}/register`}>
+                          <Button variant="hero" className="group">
+                            Register Now
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                        </Link>
                       ) : (
-                        <Button variant="hero-ghost" className="group">
-                          View Details
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
+                        <Link to={`/workshop/${workshop.id}`}>
+                          <Button variant="hero-ghost" className="group">
+                            View Details
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                        </Link>
                       )}
                     </div>
                   </div>

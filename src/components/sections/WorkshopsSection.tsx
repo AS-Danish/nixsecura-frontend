@@ -84,15 +84,19 @@ export const WorkshopsSection = () => {
                 {/* CTA */}
                 <div className="flex-shrink-0">
                   {workshop.registrationOpen ? (
-                    <Button variant="hero" className="w-full lg:w-auto group">
-                      Register Now
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
+                    <Link to={`/workshop/${workshop.id}/register`}>
+                      <Button variant="hero" className="w-full lg:w-auto group">
+                        Register Now
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                   ) : (
-                    <Button variant="hero-ghost" className="w-full lg:w-auto group">
-                      View Details
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
+                    <Link to={`/workshop/${workshop.id}`}>
+                      <Button variant="hero-ghost" className="w-full lg:w-auto group">
+                        View Details
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                   )}
                 </div>
               </div>
