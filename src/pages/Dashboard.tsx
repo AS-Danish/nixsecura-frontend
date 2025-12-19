@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, FileText, GraduationCap, Calendar, Award,
   MessageSquare, Image, Users, LogOut, Menu, X, Plus, Search,
-  Edit, Trash2, Eye, MoreVertical, ChevronDown
+  Edit, Trash2, MoreVertical
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -246,7 +246,6 @@ const Dashboard = () => {
                               <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem><Eye className="w-4 h-4 mr-2" /> View</DropdownMenuItem>
                               <DropdownMenuItem onClick={() => setBlogModal({ open: true, mode: "edit", data: blog })}>
                                 <Edit className="w-4 h-4 mr-2" /> Edit
                               </DropdownMenuItem>
@@ -301,7 +300,6 @@ const Dashboard = () => {
                               <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem><Eye className="w-4 h-4 mr-2" /> View</DropdownMenuItem>
                               <DropdownMenuItem onClick={() => setCourseModal({ open: true, mode: "edit", data: course })}>
                                 <Edit className="w-4 h-4 mr-2" /> Edit
                               </DropdownMenuItem>
@@ -356,7 +354,6 @@ const Dashboard = () => {
                               <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem><Eye className="w-4 h-4 mr-2" /> View</DropdownMenuItem>
                               <DropdownMenuItem onClick={() => setWorkshopModal({ open: true, mode: "edit", data: workshop })}>
                                 <Edit className="w-4 h-4 mr-2" /> Edit
                               </DropdownMenuItem>
@@ -561,38 +558,27 @@ const Dashboard = () => {
 
       {/* Blog Modal */}
       <Dialog open={blogModal.open} onOpenChange={(open) => setBlogModal({ ...blogModal, open })}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{blogModal.mode === "add" ? "Add New Blog" : "Edit Blog"}</DialogTitle>
+            <DialogDescription>Fill in the details for the blog post.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Title</Label>
               <Input placeholder="Enter blog title" defaultValue={blogModal.data?.title} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select defaultValue={blogModal.data?.category}>
-                  <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Threats">Threats</SelectItem>
-                    <SelectItem value="Career">Career</SelectItem>
-                    <SelectItem value="Security">Security</SelectItem>
-                    <SelectItem value="Tools">Tools</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <Select defaultValue={blogModal.data?.status || "draft"}>
-                  <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select defaultValue={blogModal.data?.category}>
+                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Threats">Threats</SelectItem>
+                  <SelectItem value="Career">Career</SelectItem>
+                  <SelectItem value="Security">Security</SelectItem>
+                  <SelectItem value="Tools">Tools</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <ImageUpload label="Featured Image" placeholder="Enter image URL or upload" />
             <div className="space-y-2">
@@ -604,25 +590,26 @@ const Dashboard = () => {
               <Textarea placeholder="Write your blog content here..." rows={6} />
             </div>
           </div>
-          <DialogFooter>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setBlogModal({ open: false, mode: "add" })}>Cancel</Button>
-            <Button variant="hero" onClick={() => { handleSave("blog"); setBlogModal({ open: false, mode: "add" }); }}>Save Blog</Button>
-          </DialogFooter>
+            <Button variant="hero" onClick={() => { handleSave("blog"); setBlogModal({ open: false, mode: "add" }); }}>Publish Blog</Button>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Course Modal */}
       <Dialog open={courseModal.open} onOpenChange={(open) => setCourseModal({ ...courseModal, open })}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{courseModal.mode === "add" ? "Add New Course" : "Edit Course"}</DialogTitle>
+            <DialogDescription>Fill in the course details below.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Course Title</Label>
               <Input placeholder="Enter course title" defaultValue={courseModal.data?.title} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Category</Label>
                 <Select defaultValue={courseModal.data?.category}>
@@ -636,16 +623,16 @@ const Dashboard = () => {
               </div>
               <div className="space-y-2">
                 <Label>Status</Label>
-                <Select defaultValue={courseModal.data?.status || "draft"}>
+                <Select defaultValue={courseModal.data?.status || "active"}>
                   <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Duration</Label>
                 <Input placeholder="e.g., 12 weeks" />
@@ -672,25 +659,26 @@ const Dashboard = () => {
               <Textarea placeholder="Introduction&#10;Module 1&#10;Module 2..." rows={4} />
             </div>
           </div>
-          <DialogFooter>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setCourseModal({ open: false, mode: "add" })}>Cancel</Button>
             <Button variant="hero" onClick={() => { handleSave("course"); setCourseModal({ open: false, mode: "add" }); }}>Save Course</Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Workshop Modal */}
       <Dialog open={workshopModal.open} onOpenChange={(open) => setWorkshopModal({ ...workshopModal, open })}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{workshopModal.mode === "add" ? "Add New Workshop" : "Edit Workshop"}</DialogTitle>
+            <DialogDescription>Fill in the workshop details below.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Workshop Title</Label>
               <Input placeholder="Enter workshop title" defaultValue={workshopModal.data?.title} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Date</Label>
                 <Input type="date" defaultValue={workshopModal.data?.date} />
@@ -700,7 +688,7 @@ const Dashboard = () => {
                 <Input placeholder="e.g., 2 days" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Location</Label>
                 <Input placeholder="Venue or Online" />
@@ -710,7 +698,7 @@ const Dashboard = () => {
                 <Input type="number" placeholder="50" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Price (₹)</Label>
                 <Input type="number" placeholder="2999" />
@@ -733,25 +721,26 @@ const Dashboard = () => {
               <Textarea placeholder="Workshop description..." rows={3} />
             </div>
           </div>
-          <DialogFooter>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setWorkshopModal({ open: false, mode: "add" })}>Cancel</Button>
             <Button variant="hero" onClick={() => { handleSave("workshop"); setWorkshopModal({ open: false, mode: "add" }); }}>Save Workshop</Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Testimonial Modal */}
       <Dialog open={testimonialModal.open} onOpenChange={(open) => setTestimonialModal({ ...testimonialModal, open })}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{testimonialModal.mode === "add" ? "Add Testimonial" : "Edit Testimonial"}</DialogTitle>
+            <DialogDescription>Add student feedback and testimonials.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Student Name</Label>
               <Input placeholder="Full name" defaultValue={testimonialModal.data?.name} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Course</Label>
                 <Input placeholder="Course name" defaultValue={testimonialModal.data?.course} />
@@ -782,18 +771,19 @@ const Dashboard = () => {
               </Select>
             </div>
           </div>
-          <DialogFooter>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setTestimonialModal({ open: false, mode: "add" })}>Cancel</Button>
             <Button variant="hero" onClick={() => { handleSave("testimonial"); setTestimonialModal({ open: false, mode: "add" }); }}>Save</Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Faculty Modal */}
       <Dialog open={facultyModal.open} onOpenChange={(open) => setFacultyModal({ ...facultyModal, open })}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{facultyModal.mode === "add" ? "Add Faculty Member" : "Edit Faculty"}</DialogTitle>
+            <DialogDescription>Add faculty member information.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -818,18 +808,19 @@ const Dashboard = () => {
               <Input placeholder="CEH, CISSP, OSCP" />
             </div>
           </div>
-          <DialogFooter>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setFacultyModal({ open: false, mode: "add" })}>Cancel</Button>
             <Button variant="hero" onClick={() => { handleSave("faculty"); setFacultyModal({ open: false, mode: "add" }); }}>Save</Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Certificate Modal */}
       <Dialog open={certificateModal.open} onOpenChange={(open) => setCertificateModal({ ...certificateModal, open })}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{certificateModal.mode === "add" ? "Add Certificate/Award" : "Edit Certificate"}</DialogTitle>
+            <DialogDescription>Add certificate or award details.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -850,18 +841,19 @@ const Dashboard = () => {
               <Textarea placeholder="Details about this recognition..." rows={3} />
             </div>
           </div>
-          <DialogFooter>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setCertificateModal({ open: false, mode: "add" })}>Cancel</Button>
             <Button variant="hero" onClick={() => { handleSave("certificate"); setCertificateModal({ open: false, mode: "add" }); }}>Save</Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Gallery Modal */}
       <Dialog open={galleryModal.open} onOpenChange={(open) => setGalleryModal({ ...galleryModal, open })}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{galleryModal.mode === "add" ? "Add Gallery Image" : "Edit Image"}</DialogTitle>
+            <DialogDescription>Upload an image to the gallery.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -886,10 +878,10 @@ const Dashboard = () => {
               <Input placeholder="Description for accessibility" />
             </div>
           </div>
-          <DialogFooter>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setGalleryModal({ open: false, mode: "add" })}>Cancel</Button>
             <Button variant="hero" onClick={() => { handleSave("image"); setGalleryModal({ open: false, mode: "add" }); }}>Save</Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
