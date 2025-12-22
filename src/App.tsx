@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoutes";
 import Index from "./pages/Index";
 import CourseDetail from "./pages/CourseDetail";
 import AllCourses from "./pages/AllCourses";
@@ -23,20 +25,29 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/course/:id" element={<CourseDetail />} />
-          <Route path="/courses" element={<AllCourses />} />
-          <Route path="/workshops" element={<AllWorkshops />} />
-          <Route path="/workshop/:id" element={<WorkshopDetail />} />
-          <Route path="/workshop/:id/register" element={<WorkshopRegister />} />
-          <Route path="/blogs" element={<AllBlogs />} />
-          <Route path="/blog/:id" element={<BlogArticle />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/course/:id" element={<CourseDetail />} />
+            <Route path="/courses" element={<AllCourses />} />
+            <Route path="/workshops" element={<AllWorkshops />} />
+            <Route path="/workshop/:id" element={<WorkshopDetail />} />
+            <Route path="/workshop/:id/register" element={<WorkshopRegister />} />
+            <Route path="/blogs" element={<AllBlogs />} />
+            <Route path="/blog/:id" element={<BlogArticle />} />
+            <Route path="/login" element={<Login />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
