@@ -31,6 +31,8 @@ import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ImageUpload";
 import { blogService, BlogInput } from "@/services/blogService";
 import { BlogPost } from "@/data/blogs";
+import { courses as courseData, Course } from "@/data/courses";
+import { courseService, CourseInput } from "@/services/courseService";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -51,12 +53,9 @@ const formats = [
   'link', 'image'
 ];
 
-// Sample data for other sections
-const sampleCourses = [
-  { id: "1", title: "Certified Ethical Hacker (CEH)", category: "Certification", students: 156 },
-  { id: "2", title: "Web Application Security", category: "Specialization", students: 89 },
-  { id: "3", title: "Network Security Fundamentals", category: "Foundation", students: 234 },
-];
+// Courses come from data source
+const sampleCourses = courseData;
+const datasetCourseIds = new Set(sampleCourses.map(c => c.id));
 
 const sampleWorkshops = [
   { id: "1", title: "Penetration Testing Bootcamp", date: "2024-02-15", registrations: 45, status: "upcoming" },
@@ -100,7 +99,7 @@ const Dashboard = () => {
   
   // Modal states
   const [blogModal, setBlogModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: BlogPost }>({ open: false, mode: "add" });
-  const [courseModal, setCourseModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: typeof sampleCourses[0] }>({ open: false, mode: "add" });
+  const [courseModal, setCourseModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: Course }>({ open: false, mode: "add" });
   const [workshopModal, setWorkshopModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: typeof sampleWorkshops[0] }>({ open: false, mode: "add" });
   const [testimonialModal, setTestimonialModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: typeof sampleTestimonials[0] }>({ open: false, mode: "add" });
   const [facultyModal, setFacultyModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: typeof sampleFaculty[0] }>({ open: false, mode: "add" });
@@ -117,6 +116,40 @@ const Dashboard = () => {
     category: "",
     published_at: "",
     tags: []
+  });
+
+  // Courses State (for listing and stats)
+  const [courses, setCourses] = useState<Course[]>([]);
+  
+  const fetchCourses = async () => {
+    try {
+      const data = await courseService.getAll();
+      setCourses(data);
+    } catch (e) {
+      console.error("Failed to fetch courses", e);
+      toast({ title: "Error", description: "Failed to fetch courses.", variant: "destructive" });
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  // Course Form State
+  const [courseForm, setCourseForm] = useState<{
+    title: string;
+    category: string;
+    duration: string;
+    image: string;
+    description: string;
+    curriculum: string;
+  }>({
+    title: "",
+    category: "Beginner",
+    duration: "",
+    image: "",
+    description: "",
+    curriculum: ""
   });
 
   useEffect(() => {
@@ -172,6 +205,30 @@ const Dashboard = () => {
     loadBlogData();
   }, [blogModal.open, blogModal.mode, blogModal.data]);
 
+  useEffect(() => {
+    if (courseModal.open && courseModal.mode === "edit" && courseModal.data) {
+      setCourseForm({
+        title: courseModal.data.title || "",
+        category: courseModal.data.category || "",
+        duration: courseModal.data.duration || "",
+        image: courseModal.data.image || "",
+        description: courseModal.data.description || "",
+        curriculum: courseModal.data.curriculum 
+          ? courseModal.data.curriculum.map(c => c.module).join('\n') 
+          : ""
+      });
+    } else if (courseModal.open && courseModal.mode === "add") {
+      setCourseForm({
+        title: "",
+        category: "Certification",
+        duration: "",
+        image: "",
+        description: "",
+        curriculum: ""
+      });
+    }
+  }, [courseModal.open, courseModal.mode, courseModal.data]);
+
   const fetchBlogs = async () => {
     try {
         const data = await blogService.getAll();
@@ -202,6 +259,14 @@ const Dashboard = () => {
         } catch (error) {
             toast({ title: "Error", description: "Failed to delete blog.", variant: "destructive" });
         }
+    } else if (deleteModal.type === "course") {
+        try {
+          await courseService.delete(deleteModal.id);
+          toast({ title: "Course Deleted", description: "The course has been successfully deleted." });
+          fetchCourses();
+        } catch (error) {
+          toast({ title: "Error", description: "Failed to delete course.", variant: "destructive" });
+        }
     } else {
         toast({ title: "Item Deleted", description: "The item has been successfully deleted." });
     }
@@ -223,6 +288,47 @@ const Dashboard = () => {
         } catch (error) {
             console.error(error);
             toast({ title: "Error", description: "Failed to save blog.", variant: "destructive" });
+        }
+    } else if (type === "course") {
+        try {
+          const curriculumArray = courseForm.curriculum.split('\n')
+            .filter(line => line.trim() !== '')
+            .map(line => ({
+              module: line.trim(),
+              topics: [line.trim()], // Simplified for now
+              duration: "TBD"
+            }));
+
+          if (courseModal.mode === "add") {
+            const payload: CourseInput = {
+              title: courseForm.title,
+              description: courseForm.description,
+              image: courseForm.image,
+              category: courseForm.category,
+              duration: courseForm.duration,
+              curriculum: curriculumArray,
+            };
+            await courseService.create(payload);
+            toast({ title: "Course Added", description: "New course has been added." });
+            fetchCourses();
+          } else if (courseModal.mode === "edit" && courseModal.data) {
+            const payload: Partial<CourseInput> = {
+              title: courseForm.title,
+              description: courseForm.description,
+              image: courseForm.image,
+              category: courseForm.category,
+              duration: courseForm.duration,
+              curriculum: curriculumArray,
+            };
+            await courseService.update(courseModal.data.id, payload);
+            toast({ title: "Course Updated", description: "Course has been updated." });
+            fetchCourses();
+          }
+          setCourseModal({ open: false, mode: "add" });
+          setCourseForm({ title: "", category: "Beginner", duration: "", image: "", description: "" });
+        } catch (error) {
+          console.error(error);
+          toast({ title: "Error", description: "Failed to save course.", variant: "destructive" });
         }
     } else {
         toast({ title: "Saved Successfully", description: `The ${type} has been saved.` });
@@ -318,7 +424,7 @@ const Dashboard = () => {
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                   { label: "Total Blogs", value: blogs.length.toString(), change: "+3 this month" },
-                  { label: "Active Courses", value: "12", change: "2 drafts" },
+                  { label: "Active Courses", value: courses.length.toString(), change: "" },
                   { label: "Upcoming Workshops", value: "5", change: "120 registrations" },
                   { label: "Testimonials", value: "48", change: "5 pending" },
                 ].map((stat, i) => (
@@ -326,7 +432,7 @@ const Dashboard = () => {
                     <CardContent className="pt-6">
                       <p className="text-sm text-muted-foreground">{stat.label}</p>
                       <p className="text-3xl font-bold text-foreground mt-1">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground mt-2">{stat.change}</p>
+                      {stat.change !== "" && <p className="text-xs text-muted-foreground mt-2">{stat.change}</p>}
                     </CardContent>
                   </Card>
                 ))}
@@ -397,16 +503,16 @@ const Dashboard = () => {
                     <TableRow>
                       <TableHead>Title</TableHead>
                       <TableHead>Category</TableHead>
-                      <TableHead>Students</TableHead>
+                      <TableHead>Duration</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sampleCourses.map((course) => (
+                    {courses.map((course) => (
                       <TableRow key={course.id}>
                         <TableCell className="font-medium">{course.title}</TableCell>
                         <TableCell>{course.category}</TableCell>
-                        <TableCell>{course.students}</TableCell>
+                        <TableCell>{course.duration}</TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -764,31 +870,60 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Course Title</Label>
-              <Input placeholder="Enter course title" defaultValue={courseModal.data?.title} />
+              <Input 
+                placeholder="Enter course title" 
+                value={courseForm.title}
+                onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label>Category</Label>
-              <Select defaultValue={courseModal.data?.category}>
+              <Select value={courseForm.category} onValueChange={(value) => setCourseForm({ ...courseForm, category: value })}>
                 <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Certification">Certification</SelectItem>
-                  <SelectItem value="Specialization">Specialization</SelectItem>
-                  <SelectItem value="Foundation">Foundation</SelectItem>
+                  <SelectItem value="Beginner">Beginner</SelectItem>
+                  <SelectItem value="Intermediate">Intermediate</SelectItem>
+                  <SelectItem value="Advanced">Advanced</SelectItem>
+                  <SelectItem value="Professional">Professional</SelectItem>
+                  <SelectItem value="Specialized">Specialized</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Duration</Label>
-              <Input placeholder="e.g., 12 weeks" />
+              <Input 
+                placeholder="e.g., 12 Weeks" 
+                value={courseForm.duration}
+                onChange={(e) => setCourseForm({ ...courseForm, duration: e.target.value })}
+              />
             </div>
-            <ImageUpload label="Course Image" placeholder="Enter image URL or upload" />
+            <ImageUpload 
+              label="Course Image" 
+              placeholder="Enter image URL or upload" 
+              value={courseForm.image}
+              onChange={(url) => setCourseForm({ ...courseForm, image: url })}
+            />
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea placeholder="Course description..." rows={3} />
+              <div className="h-72 mb-12">
+                <ReactQuill 
+                  theme="snow"
+                  value={courseForm.description}
+                  onChange={(content) => setCourseForm({ ...courseForm, description: content })}
+                  modules={modules}
+                  formats={formats}
+                  className="h-64"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Curriculum (one topic per line)</Label>
-              <Textarea placeholder="Introduction&#10;Module 1&#10;Module 2..." rows={4} />
+              <Textarea 
+                placeholder="Introduction&#10;Module 1&#10;Module 2..." 
+                rows={4} 
+                value={courseForm.curriculum}
+                onChange={(e) => setCourseForm({ ...courseForm, curriculum: e.target.value })}
+              />
             </div>
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">

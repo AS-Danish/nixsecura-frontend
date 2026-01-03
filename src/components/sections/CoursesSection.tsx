@@ -2,9 +2,24 @@ import { motion } from "framer-motion";
 import { ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { courses } from "@/data/courses";
+import { courses as dataset, Course } from "@/data/courses";
+import { useEffect, useState } from "react";
+import { courseService } from "@/services/courseService";
 
 export const CoursesSection = () => {
+  const [merged, setMerged] = useState<Course[]>([]);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await courseService.getAll();
+        setMerged(data);
+      } catch {
+        console.error("Failed to fetch courses");
+      }
+    };
+    load();
+  }, []);
+  const latestSix = merged.slice(0, 6);
   return (
     <section id="courses" className="py-20 lg:py-32 relative">
       <div className="container mx-auto px-4 lg:px-8">
@@ -28,7 +43,7 @@ export const CoursesSection = () => {
 
         {/* Courses Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.map((course, index) => (
+          {latestSix.map((course, index) => (
             <motion.div
               key={course.id}
               initial={{ opacity: 0, y: 30 }}
@@ -55,9 +70,10 @@ export const CoursesSection = () => {
                 <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
                   {course.title}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
-                  {course.description}
-                </p>
+                <div
+                  className="prose prose-sm max-w-none text-muted-foreground mb-4 line-clamp-3"
+                  dangerouslySetInnerHTML={{ __html: course.description }}
+                />
                 
                 {/* Course Meta */}
                 <div className="flex items-center gap-4 mb-6 text-xs text-muted-foreground">

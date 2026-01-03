@@ -2,18 +2,31 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Clock, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { courses } from "@/data/courses";
+import { courses as dataset, Course } from "@/data/courses";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/sections/Footer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { courseService } from "@/services/courseService";
 
 const categories = ["All", "Beginner", "Intermediate", "Advanced", "Professional", "Specialized"];
 
 const AllCourses = () => {
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await courseService.getAll();
+        setAllCourses(data);
+      } catch {
+        console.error("Failed to fetch courses");
+      }
+    };
+    load();
+  }, []);
 
-  const filteredCourses = courses.filter((course) => {
+  const filteredCourses = allCourses.filter((course) => {
     const matchesCategory = selectedCategory === "All" || course.category === selectedCategory;
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          course.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -116,9 +129,10 @@ const AllCourses = () => {
                   <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
                     {course.title}
                   </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
-                    {course.description}
-                  </p>
+                <div
+                  className="prose prose-sm max-w-none text-muted-foreground mb-4"
+                  dangerouslySetInnerHTML={{ __html: course.description }}
+                />
                   
                   <div className="flex items-center gap-4 mb-6 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5">
@@ -138,7 +152,7 @@ const AllCourses = () => {
             ))}
           </div>
 
-          {filteredCourses.length === 0 && (
+            {filteredCourses.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No courses found matching your criteria.</p>
             </div>
