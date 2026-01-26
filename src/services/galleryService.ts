@@ -1,4 +1,5 @@
 import api from '@/lib/axios';
+import { normalizeImageUrl } from '@/utils/imageUtils';
 
 export interface Gallery {
   id: string;
@@ -24,7 +25,7 @@ const mapToGallery = (data: any): Gallery => {
     id: data.id.toString(),
     title: data.title,
     category: data.category,
-    image: data.image || '',
+    image: normalizeImageUrl(data.image),
     description: data.description || '',
     order: data.order || 0,
     is_featured: data.is_featured || false,

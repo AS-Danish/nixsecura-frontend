@@ -56,9 +56,15 @@ export const GallerySection = () => {
             >
               <div className={`aspect-square ${(index === 0 || index === 5) ? "md:aspect-auto md:h-full" : ""}`}>
                 <img
-                  src={image.image || "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&h=600&fit=crop"}
+                  src={image.image || '/placeholder.svg'}
                   alt={image.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== '/placeholder.svg') {
+                      target.src = '/placeholder.svg';
+                    }
+                  }}
                 />
               </div>
               
@@ -93,7 +99,13 @@ export const GallerySection = () => {
                 onClick={(e) => e.stopPropagation()}
               >
                 <img
-                  src={selectedImage.image || "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&h=600&fit=crop"}
+                  src={selectedImage.image || '/placeholder.svg'}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== '/placeholder.svg') {
+                      target.src = '/placeholder.svg';
+                    }
+                  }}
                   alt={selectedImage.title}
                   className="w-full h-full object-contain rounded-lg"
                 />

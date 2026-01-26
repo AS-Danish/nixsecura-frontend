@@ -66,7 +66,17 @@ const BlogArticle = () => {
       {/* Hero */}
       <section className="pt-24 pb-8 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={post.image} alt={post.title} className="w-full h-full object-cover opacity-10" />
+          <img 
+            src={post.image || '/placeholder.svg'} 
+            alt={post.title} 
+            className="w-full h-full object-cover opacity-10"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (target.src !== '/placeholder.svg') {
+                target.src = '/placeholder.svg';
+              }
+            }}
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
         </div>
         
@@ -112,9 +122,15 @@ const BlogArticle = () => {
             className="max-w-4xl mx-auto"
           >
             <img
-              src={post.image}
+              src={post.image || '/placeholder.svg'}
               alt={post.title}
               className="w-full rounded-2xl shadow-hero"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (target.src !== '/placeholder.svg') {
+                  target.src = '/placeholder.svg';
+                }
+              }}
             />
           </motion.div>
         </div>

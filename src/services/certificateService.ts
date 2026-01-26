@@ -1,4 +1,5 @@
 import api from '@/lib/axios';
+import { normalizeImageUrl } from '@/utils/imageUtils';
 
 export interface Certificate {
   id: string;
@@ -33,7 +34,7 @@ const mapToCertificate = (data: any): Certificate => {
     title: data.title,
     issuer: data.issuer,
     year: data.year,
-    image: data.image || '',
+    image: normalizeImageUrl(data.image),
     description: data.description || '',
     certificate_number: data.certificate_number || '',
     issue_date: data.issue_date || '',

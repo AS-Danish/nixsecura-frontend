@@ -1,4 +1,5 @@
 import api from '@/lib/axios';
+import { normalizeImageUrl } from '@/utils/imageUtils';
 
 export interface Workshop {
   id: string;
@@ -36,7 +37,7 @@ const mapToWorkshop = (data: any): Workshop => {
     id: data.id.toString(),
     title: data.title,
     description: data.description || '',
-    image: data.image || '',
+    image: normalizeImageUrl(data.image),
     date: data.date ? new Date(data.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     start_time: data.start_time || '',
     end_time: data.end_time || '',

@@ -51,7 +51,17 @@ const CourseDetail = () => {
       {/* Hero Banner */}
       <section className="relative pt-24 pb-16 overflow-hidden">
         <div className="absolute inset-0">
-          <img src={course.image} alt={course.title} className="w-full h-full object-cover opacity-20" />
+          <img 
+            src={course.image || '/placeholder.svg'} 
+            alt={course.title} 
+            className="w-full h-full object-cover opacity-20"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (target.src !== '/placeholder.svg') {
+                target.src = '/placeholder.svg';
+              }
+            }}
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
         </div>
         
@@ -119,9 +129,15 @@ const CourseDetail = () => {
               className="relative"
             >
               <img
-                src={course.image}
+                src={course.image || '/placeholder.svg'}
                 alt={course.title}
                 className="w-full rounded-2xl shadow-hero"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== '/placeholder.svg') {
+                    target.src = '/placeholder.svg';
+                  }
+                }}
               />
             </motion.div>
           </div>

@@ -1,5 +1,6 @@
 import api from '@/lib/axios';
 import { Course } from '@/data/courses';
+import { normalizeImageUrl } from '@/utils/imageUtils';
 
 export interface CourseInput {
   title: string;
@@ -26,7 +27,7 @@ const mapToCourse = (data: CourseApi): Course => {
     id: data.id !== undefined ? String(data.id) : String(data.slug || ''),
     title: data.title,
     description: data.description,
-    image: data.image ?? '',
+    image: normalizeImageUrl(data.image),
     category: data.category,
     duration: data.duration ?? '',
     mode: '',

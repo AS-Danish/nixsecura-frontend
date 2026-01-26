@@ -26,15 +26,14 @@ export const ImageUpload = ({
   const { toast } = useToast();
 
   useEffect(() => {
+    // Always sync with value prop
     if (value) {
       setPreviewUrl(value);
       setUrlInput(value);
-    } else {
-      // Only clear if value is explicitly empty
-      if (value === "") {
-        setPreviewUrl("");
-        setUrlInput("");
-      }
+    } else if (value === "" || value === null || value === undefined) {
+      // Only clear if explicitly empty
+      setPreviewUrl("");
+      setUrlInput("");
     }
   }, [value]);
 
@@ -131,10 +130,8 @@ export const ImageUpload = ({
             alt="Preview" 
             className="w-full h-40 object-cover"
             onError={(e) => {
-              // If image fails to load, don't clear if it's a server URL
-              if (!previewUrl.startsWith('http://localhost:8000') && !previewUrl.startsWith('http')) {
-                setPreviewUrl("");
-              }
+              // Don't clear preview on error - might be CORS or temporary issue
+              console.warn('Image failed to load:', previewUrl);
             }}
           />
           <Button
@@ -146,12 +143,6 @@ export const ImageUpload = ({
           >
             <X className="w-4 h-4" />
           </Button>
-          {/* Show URL below image */}
-          {previewUrl && previewUrl.startsWith('http') && (
-            <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-2 truncate">
-              {previewUrl}
-            </div>
-          )}
         </div>
       )}
 

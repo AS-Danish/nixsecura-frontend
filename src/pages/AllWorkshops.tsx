@@ -88,8 +88,14 @@ const AllWorkshops = () => {
                   {/* Image */}
                   <div className="relative h-48 lg:h-auto">
                     <img
-                      src={workshop.image}
+                      src={workshop.image || '/placeholder.svg'}
                       alt={workshop.title}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (target.src !== '/placeholder.svg') {
+                          target.src = '/placeholder.svg';
+                        }
+                      }}
                       className="w-full h-full object-cover"
                     />
                     {workshop.registrationOpen && (

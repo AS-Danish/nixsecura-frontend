@@ -1,4 +1,5 @@
 import api from '@/lib/axios';
+import { normalizeImageUrl } from '@/utils/imageUtils';
 
 export interface Faculty {
   id: string;
@@ -36,7 +37,7 @@ const mapToFaculty = (data: any): Faculty => {
     specialization: data.specialization,
     bio: data.bio || '',
     experience: data.experience || '',
-    image: data.image || '',
+    image: normalizeImageUrl(data.image),
     email: data.email || '',
     phone: data.phone || '',
     qualifications: Array.isArray(data.qualifications) ? data.qualifications : [],

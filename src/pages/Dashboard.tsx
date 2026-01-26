@@ -312,15 +312,16 @@ const Dashboard = () => {
             });
           }
       } else if (blogModal.open && blogModal.mode === "add") {
-          setBlogForm({
+          // Don't clear image if it was just uploaded - preserve it
+          setBlogForm(prev => ({
               title: "",
               excerpt: "",
               content: "",
-              image: "",
+              image: prev.image || "", // Keep image if it exists
               category: "Threats",
               published_at: new Date().toISOString().split('T')[0],
               tags: []
-          });
+          }));
       }
     };
     loadBlogData();
@@ -607,7 +608,10 @@ const Dashboard = () => {
         }
         fetchBlogs();
         setBlogModal({ open: false, mode: "add" });
-        setBlogForm({ title: "", excerpt: "", content: "", image: "", category: "", published_at: "", tags: [] });
+        // Clear form after modal closes (but keep image briefly for visual feedback)
+        setTimeout(() => {
+          setBlogForm({ title: "", excerpt: "", content: "", image: "", category: "", published_at: "", tags: [] });
+        }, 300);
       } else if (type === "course") {
         // Validate required fields
         if (!courseForm.title?.trim()) {

@@ -77,9 +77,13 @@ export const TestimonialsSection = () => {
                 <div className="flex items-center gap-4">
                   {testimonials[currentIndex]?.image ? (
                     <img
-                      src={testimonials[currentIndex].image}
+                      src={testimonials[currentIndex].image || '/placeholder.svg'}
                       alt={testimonials[currentIndex].name}
                       className="w-14 h-14 rounded-full object-cover ring-2 ring-primary/20"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
                     />
                   ) : (
                     <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center ring-2 ring-primary/20">

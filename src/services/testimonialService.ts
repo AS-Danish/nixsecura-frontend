@@ -1,4 +1,5 @@
 import api from '@/lib/axios';
+import { normalizeImageUrl } from '@/utils/imageUtils';
 
 export interface Testimonial {
   id: string;
@@ -30,7 +31,7 @@ const mapToTestimonial = (data: any): Testimonial => {
     course: data.course || '',
     testimonial: data.testimonial || '',
     rating: data.rating || 5,
-    image: data.image || '',
+    image: normalizeImageUrl(data.image),
     position: data.position || '',
     company: data.company || '',
     is_featured: data.is_featured || false,

@@ -1,5 +1,6 @@
 import api from '@/lib/axios';
 import { BlogPost } from '@/data/blogs';
+import { normalizeImageUrl } from '@/utils/imageUtils';
 
 export interface BlogInput {
   title: string;
@@ -17,7 +18,7 @@ const mapToBlogPost = (data: any): BlogPost => {
     title: data.title,
     excerpt: data.excerpt,
     content: data.content,
-    image: data.image || '',
+    image: normalizeImageUrl(data.image),
     category: data.category,
     date: data.published_at ? new Date(data.published_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     tags: Array.isArray(data.tags) ? data.tags : (data.tags ? JSON.parse(data.tags) : [])

@@ -111,9 +111,15 @@ const WorkshopDetail = () => {
             >
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src={workshop.image}
+                  src={workshop.image || '/placeholder.svg'}
                   alt={workshop.title}
                   className="w-full h-80 object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== '/placeholder.svg') {
+                      target.src = '/placeholder.svg';
+                    }
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               </div>

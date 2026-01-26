@@ -61,9 +61,15 @@ export const BlogsSection = () => {
                 {/* Image */}
                 <div className="relative overflow-hidden rounded-2xl mb-5">
                   <img
-                    src={blog.image}
+                    src={blog.image || '/placeholder.svg'}
                     alt={blog.title}
                     className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target.src !== '/placeholder.svg') {
+                        target.src = '/placeholder.svg';
+                      }
+                    }}
                   />
                   <div className="absolute top-4 left-4">
                     <span className="px-3 py-1 bg-card/90 backdrop-blur-sm text-foreground text-xs font-medium rounded-full">
