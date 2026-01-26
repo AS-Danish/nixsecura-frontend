@@ -559,17 +559,44 @@ const Dashboard = () => {
   const handleSave = async (type: string) => {
     try {
       if (type === "blog") {
+        // Validate required fields
+        if (!blogForm.title?.trim()) {
+          toast({ title: "Validation Error", description: "Title is required.", variant: "destructive" });
+          return;
+        }
+        if (!blogForm.excerpt?.trim()) {
+          toast({ title: "Validation Error", description: "Excerpt is required.", variant: "destructive" });
+          return;
+        }
+        if (!blogForm.content || blogForm.content.trim() === '' || blogForm.content === '<p><br></p>') {
+          toast({ title: "Validation Error", description: "Content is required.", variant: "destructive" });
+          return;
+        }
+        if (!blogForm.category?.trim()) {
+          toast({ title: "Validation Error", description: "Category is required.", variant: "destructive" });
+          return;
+        }
+
         // Clean and prepare blog data
-        const payload = {
-          ...blogForm,
+        const payload: BlogInput = {
           title: blogForm.title.trim(),
           excerpt: blogForm.excerpt.trim(),
+          content: blogForm.content.trim(), // Keep HTML from ReactQuill
+          category: blogForm.category.trim(),
           tags: Array.isArray(blogForm.tags) 
             ? blogForm.tags.filter(t => t.trim() !== '') 
-            : (blogForm.tags ? [blogForm.tags].filter(t => t.trim() !== '') : []),
-          image: blogForm.image?.trim() || null,
-          published_at: blogForm.published_at || null,
+            : [],
         };
+        
+        // Only include optional fields if they have values
+        if (blogForm.image?.trim()) {
+          payload.image = blogForm.image.trim();
+        }
+        if (blogForm.published_at) {
+          payload.published_at = blogForm.published_at.includes('T') 
+            ? blogForm.published_at.split('T')[0] 
+            : blogForm.published_at;
+        }
 
         if (blogModal.mode === "add") {
           await blogService.create(payload);
@@ -579,8 +606,23 @@ const Dashboard = () => {
           toast({ title: "Blog Updated", description: "Blog post has been updated." });
         }
         fetchBlogs();
-        setBlogModal({ ...blogModal, open: false });
+        setBlogModal({ open: false, mode: "add" });
+        setBlogForm({ title: "", excerpt: "", content: "", image: "", category: "", published_at: "", tags: [] });
       } else if (type === "course") {
+        // Validate required fields
+        if (!courseForm.title?.trim()) {
+          toast({ title: "Validation Error", description: "Course title is required.", variant: "destructive" });
+          return;
+        }
+        if (!courseForm.description?.trim()) {
+          toast({ title: "Validation Error", description: "Description is required.", variant: "destructive" });
+          return;
+        }
+        if (!courseForm.category?.trim()) {
+          toast({ title: "Validation Error", description: "Category is required.", variant: "destructive" });
+          return;
+        }
+
         const curriculumArray = courseForm.curriculum
           ? courseForm.curriculum.split('\n')
               .filter(line => line.trim() !== '')
@@ -595,9 +637,9 @@ const Dashboard = () => {
         const payload: CourseInput = {
           title: courseForm.title.trim(),
           description: courseForm.description.trim(),
-          image: courseForm.image?.trim() || null,
-          category: courseForm.category,
-          duration: courseForm.duration?.trim() || null,
+          category: courseForm.category.trim(),
+          image: courseForm.image?.trim() || undefined,
+          duration: courseForm.duration?.trim() || undefined,
           curriculum: curriculumArray,
         };
 
@@ -613,18 +655,34 @@ const Dashboard = () => {
         setCourseModal({ open: false, mode: "add" });
         setCourseForm({ title: "", category: "Beginner", duration: "", image: "", description: "", curriculum: "" });
       } else if (type === "workshop") {
+        // Validate required fields
+        if (!workshopForm.title?.trim()) {
+          toast({ title: "Validation Error", description: "Workshop title is required.", variant: "destructive" });
+          return;
+        }
+        if (!workshopForm.date) {
+          toast({ title: "Validation Error", description: "Date is required.", variant: "destructive" });
+          return;
+        }
+        if (!workshopForm.status) {
+          toast({ title: "Validation Error", description: "Status is required.", variant: "destructive" });
+          return;
+        }
+
         // Clean and prepare workshop data
-        const cleanWorkshopData = {
-          ...workshopForm,
-          description: workshopForm.description?.trim() || null,
-          location: workshopForm.location?.trim() || null,
-          image: workshopForm.image?.trim() || null,
-          start_time: workshopForm.start_time?.trim() || null,
-          end_time: workshopForm.end_time?.trim() || null,
+        const cleanWorkshopData: WorkshopInput = {
+          title: workshopForm.title.trim(),
+          date: workshopForm.date,
+          status: workshopForm.status,
+          description: workshopForm.description?.trim() || undefined,
+          location: workshopForm.location?.trim() || undefined,
+          image: workshopForm.image?.trim() || undefined,
+          start_time: workshopForm.start_time?.trim() || undefined,
+          end_time: workshopForm.end_time?.trim() || undefined,
           instructors: Array.isArray(workshopForm.instructors) ? workshopForm.instructors : [],
-          max_participants: workshopForm.max_participants || null,
+          max_participants: workshopForm.max_participants || undefined,
           registrations: workshopForm.registrations || 0,
-          price: workshopForm.price || null,
+          price: workshopForm.price || undefined,
         };
         
         if (workshopModal.mode === "add") {
@@ -638,14 +696,25 @@ const Dashboard = () => {
         }
         setWorkshopModal({ open: false, mode: "add" });
       } else if (type === "testimonial") {
+        // Validate required fields
+        if (!testimonialForm.name?.trim()) {
+          toast({ title: "Validation Error", description: "Name is required.", variant: "destructive" });
+          return;
+        }
+        if (!testimonialForm.rating || testimonialForm.rating < 1 || testimonialForm.rating > 5) {
+          toast({ title: "Validation Error", description: "Rating must be between 1 and 5.", variant: "destructive" });
+          return;
+        }
+
         // Clean and prepare testimonial data
-        const cleanTestimonialData = {
-          ...testimonialForm,
-          course: testimonialForm.course?.trim() || null,
-          testimonial: testimonialForm.testimonial?.trim() || null,
-          position: testimonialForm.position?.trim() || null,
-          company: testimonialForm.company?.trim() || null,
-          image: testimonialForm.image?.trim() || null,
+        const cleanTestimonialData: TestimonialInput = {
+          name: testimonialForm.name.trim(),
+          rating: testimonialForm.rating,
+          course: testimonialForm.course?.trim() || undefined,
+          testimonial: testimonialForm.testimonial?.trim() || undefined,
+          position: testimonialForm.position?.trim() || undefined,
+          company: testimonialForm.company?.trim() || undefined,
+          image: testimonialForm.image?.trim() || undefined,
           is_featured: testimonialForm.is_featured || false,
         };
         
@@ -660,16 +729,28 @@ const Dashboard = () => {
         }
         setTestimonialModal({ open: false, mode: "add" });
       } else if (type === "faculty") {
+        // Validate required fields
+        if (!facultyForm.name?.trim()) {
+          toast({ title: "Validation Error", description: "Name is required.", variant: "destructive" });
+          return;
+        }
+        if (!facultyForm.specialization?.trim()) {
+          toast({ title: "Validation Error", description: "Specialization is required.", variant: "destructive" });
+          return;
+        }
+
         // Clean and prepare faculty data
-        const cleanFacultyData = {
-          ...facultyForm,
+        const cleanFacultyData: FacultyInput = {
+          name: facultyForm.name.trim(),
+          specialization: facultyForm.specialization.trim(),
           qualifications: Array.isArray(facultyForm.qualifications) ? facultyForm.qualifications.filter(q => q.trim() !== '') : [],
           expertise_areas: Array.isArray(facultyForm.expertise_areas) ? facultyForm.expertise_areas.filter(e => e.trim() !== '') : [],
-          email: facultyForm.email?.trim() || null,
-          phone: facultyForm.phone?.trim() || null,
-          bio: facultyForm.bio?.trim() || null,
-          experience: facultyForm.experience?.trim() || null,
-          image: facultyForm.image?.trim() || null,
+          email: facultyForm.email?.trim() || undefined,
+          phone: facultyForm.phone?.trim() || undefined,
+          bio: facultyForm.bio?.trim() || undefined,
+          experience: facultyForm.experience?.trim() || undefined,
+          image: facultyForm.image?.trim() || undefined,
+          order: facultyForm.order || 0,
           is_active: facultyForm.is_active !== undefined ? facultyForm.is_active : true,
         };
         
@@ -684,14 +765,31 @@ const Dashboard = () => {
         }
         setFacultyModal({ open: false, mode: "add" });
       } else if (type === "certificate") {
+        // Validate required fields
+        if (!certificateForm.title?.trim()) {
+          toast({ title: "Validation Error", description: "Title is required.", variant: "destructive" });
+          return;
+        }
+        if (!certificateForm.issuer?.trim()) {
+          toast({ title: "Validation Error", description: "Issuer is required.", variant: "destructive" });
+          return;
+        }
+        if (!certificateForm.year?.trim()) {
+          toast({ title: "Validation Error", description: "Year is required.", variant: "destructive" });
+          return;
+        }
+
         // Clean and prepare certificate data
-        const cleanCertificateData = {
-          ...certificateForm,
-          description: certificateForm.description?.trim() || null,
-          certificate_number: certificateForm.certificate_number?.trim() || null,
-          image: certificateForm.image?.trim() || null,
-          issue_date: certificateForm.issue_date || null,
-          expiry_date: certificateForm.expiry_date || null,
+        const cleanCertificateData: CertificateInput = {
+          title: certificateForm.title.trim(),
+          issuer: certificateForm.issuer.trim(),
+          year: certificateForm.year.trim(),
+          description: certificateForm.description?.trim() || undefined,
+          certificate_number: certificateForm.certificate_number?.trim() || undefined,
+          image: certificateForm.image?.trim() || undefined,
+          issue_date: certificateForm.issue_date || undefined,
+          expiry_date: certificateForm.expiry_date || undefined,
+          order: certificateForm.order || 0,
           is_featured: certificateForm.is_featured || false,
         };
         
@@ -706,10 +804,27 @@ const Dashboard = () => {
         }
         setCertificateModal({ open: false, mode: "add" });
       } else if (type === "gallery" || type === "image") {
+        // Validate required fields
+        if (!galleryForm.title?.trim()) {
+          toast({ title: "Validation Error", description: "Title is required.", variant: "destructive" });
+          return;
+        }
+        if (!galleryForm.category?.trim()) {
+          toast({ title: "Validation Error", description: "Category is required.", variant: "destructive" });
+          return;
+        }
+        if (!galleryForm.image?.trim()) {
+          toast({ title: "Validation Error", description: "Image URL is required.", variant: "destructive" });
+          return;
+        }
+
         // Clean and prepare gallery data
-        const cleanGalleryData = {
-          ...galleryForm,
-          description: galleryForm.description?.trim() || null,
+        const cleanGalleryData: GalleryInput = {
+          title: galleryForm.title.trim(),
+          category: galleryForm.category.trim(),
+          image: galleryForm.image.trim(),
+          description: galleryForm.description?.trim() || undefined,
+          order: galleryForm.order || 0,
           is_featured: galleryForm.is_featured || false,
         };
         
@@ -727,9 +842,13 @@ const Dashboard = () => {
     } catch (error: any) {
       console.error(`Failed to save ${type}:`, error);
       // Show validation errors from backend if available
-      const errorMessage = error?.response?.data?.message 
-        || error?.response?.data?.error 
-        || (error?.response?.data?.errors ? Object.values(error.response.data.errors).flat().join(', ') : null)
+      const backendErrors = error?.response?.data?.errors
+        ? Object.values(error.response.data.errors).flat().join(', ')
+        : null;
+      const backendMessage = error?.response?.data?.message || error?.response?.data?.error;
+      const errorMessage =
+        backendErrors
+        || (backendMessage && backendMessage !== 'Validation failed' ? backendMessage : null)
         || `Failed to save ${type}. Please check all required fields.`;
       toast({ 
         title: "Error", 

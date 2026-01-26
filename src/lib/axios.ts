@@ -10,6 +10,20 @@ const api = axios.create({
   },
 });
 
+// Request interceptor to handle multipart/form-data
+api.interceptors.request.use(
+  (config) => {
+    // Don't set Content-Type for FormData, let browser set it with boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Add response interceptor to handle errors gracefully
 api.interceptors.response.use(
   (response) => response,
