@@ -1,47 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
-
-const testimonials = [
-  {
-    id: 1,
-    name: "Rahul Sharma",
-    role: "Security Analyst at TCS",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    content: "CyberShield transformed my career. The hands-on labs and expert mentorship gave me the confidence to crack my first security role within months of completing the course.",
-    rating: 5,
-  },
-  {
-    id: 2,
-    name: "Priya Patel",
-    role: "SOC Lead at Infosys",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
-    content: "The practical approach here is unmatched. I went from zero cybersecurity knowledge to leading a SOC team. The curriculum is exactly what the industry needs.",
-    rating: 5,
-  },
-  {
-    id: 3,
-    name: "Amit Kumar",
-    role: "Penetration Tester at Deloitte",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    content: "Best decision I ever made was joining CyberShield. The instructors are actual industry professionals who share real-world scenarios you won't find in books.",
-    rating: 5,
-  },
-  {
-    id: 4,
-    name: "Sneha Reddy",
-    role: "Security Consultant at EY",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    content: "The workshops and live projects prepared me for exactly what I face in my job today. CyberShield doesn't just teach—they prepare you for the real world.",
-    rating: 5,
-  },
-];
+import { testimonialService, Testimonial } from "@/services/testimonialService";
 
 export const TestimonialsSection = () => {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const next = () => setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-  const prev = () => setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const data = await testimonialService.getAll();
+        // Filter featured or take first 4
+        const featured = data.filter(t => t.is_featured).length > 0 
+          ? data.filter(t => t.is_featured).slice(0, 4)
+          : data.slice(0, 4);
+        setTestimonials(featured);
+      } catch (error) {
+        console.error("Failed to fetch testimonials", error);
+      }
+    };
+    fetchTestimonials();
+  }, []);
+
+  const next = () => setCurrentIndex((prev) => testimonials.length > 0 ? (prev + 1) % testimonials.length : 0);
+  const prev = () => setCurrentIndex((prev) => testimonials.length > 0 ? (prev - 1 + testimonials.length) % testimonials.length : 0);
 
   return (
     <section id="testimonials" className="py-20 lg:py-32 bg-muted/30 relative overflow-hidden">
@@ -87,19 +70,31 @@ export const TestimonialsSection = () => {
 
                 {/* Content */}
                 <p className="text-xl lg:text-2xl text-foreground leading-relaxed mb-8 font-light">
-                  "{testimonials[currentIndex].content}"
+                  "{testimonials[currentIndex]?.testimonial || testimonials[currentIndex]?.course || 'Great experience!'}"
                 </p>
 
                 {/* Author */}
                 <div className="flex items-center gap-4">
-                  <img
-                    src={testimonials[currentIndex].image}
-                    alt={testimonials[currentIndex].name}
-                    className="w-14 h-14 rounded-full object-cover ring-2 ring-primary/20"
-                  />
+                  {testimonials[currentIndex]?.image ? (
+                    <img
+                      src={testimonials[currentIndex].image}
+                      alt={testimonials[currentIndex].name}
+                      className="w-14 h-14 rounded-full object-cover ring-2 ring-primary/20"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center ring-2 ring-primary/20">
+                      <span className="text-primary font-semibold text-lg">
+                        {testimonials[currentIndex]?.name?.charAt(0) || 'U'}
+                      </span>
+                    </div>
+                  )}
                   <div>
-                    <h4 className="font-semibold text-foreground">{testimonials[currentIndex].name}</h4>
-                    <p className="text-muted-foreground text-sm">{testimonials[currentIndex].role}</p>
+                    <h4 className="font-semibold text-foreground">{testimonials[currentIndex]?.name}</h4>
+                    <p className="text-muted-foreground text-sm">
+                      {testimonials[currentIndex]?.position && testimonials[currentIndex]?.company
+                        ? `${testimonials[currentIndex].position} at ${testimonials[currentIndex].company}`
+                        : testimonials[currentIndex]?.course || 'Student'}
+                    </p>
                   </div>
                 </div>
               </motion.div>
@@ -116,18 +111,20 @@ export const TestimonialsSection = () => {
               </button>
               
               {/* Dots */}
-              <div className="flex gap-2">
-                {testimonials.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                      index === currentIndex ? "bg-primary w-8" : "bg-muted-foreground/30"
-                    }`}
-                    aria-label={`Go to testimonial ${index + 1}`}
-                  />
-                ))}
-              </div>
+              {testimonials.length > 0 && (
+                <div className="flex gap-2">
+                  {testimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentIndex(index)}
+                      className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                        index === currentIndex ? "bg-primary w-8" : "bg-muted-foreground/30"
+                      }`}
+                      aria-label={`Go to testimonial ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
 
               <button
                 onClick={next}

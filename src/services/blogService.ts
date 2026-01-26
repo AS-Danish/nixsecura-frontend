@@ -26,7 +26,7 @@ const mapToBlogPost = (data: any): BlogPost => {
 
 export const blogService = {
   getAll: async (): Promise<BlogPost[]> => {
-    const response = await api.get('/api/blogs');
+    const response = await api.get('/api/blogs?_=' + new Date().getTime());
     const data = Array.isArray(response.data) ? response.data : (response.data.data || []);
     return data.map(mapToBlogPost);
   },
@@ -34,7 +34,9 @@ export const blogService = {
   getById: async (id: string): Promise<BlogPost> => {
     const response = await api.get(`/api/blogs/${id}`);
     const data = response.data.data || response.data;
-    return mapToBlogPost(data);
+    // Handle potential double nesting or different structure
+    const blogData = data.data ? data.data : data;
+    return mapToBlogPost(blogData);
   },
 
   create: async (data: BlogInput) => {

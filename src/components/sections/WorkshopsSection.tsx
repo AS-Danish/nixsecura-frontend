@@ -2,10 +2,29 @@ import { motion } from "framer-motion";
 import { Calendar, Clock, MapPin, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { workshops } from "@/data/workshops";
+import { useEffect, useState } from "react";
+import { workshopService, Workshop } from "@/services/workshopService";
 
 export const WorkshopsSection = () => {
-  const displayedWorkshops = workshops.slice(0, 3);
+  const [workshops, setWorkshops] = useState<Workshop[]>([]);
+
+  useEffect(() => {
+    const fetchWorkshops = async () => {
+      try {
+        const data = await workshopService.getAll();
+        // Filter for upcoming/open workshops and take first 3
+        const upcoming = data
+          .filter(w => w.status === "upcoming" || w.status === "open")
+          .slice(0, 3);
+        setWorkshops(upcoming);
+      } catch (error) {
+        console.error("Failed to fetch workshops", error);
+      }
+    };
+    fetchWorkshops();
+  }, []);
+
+  const displayedWorkshops = workshops;
 
   return (
     <section id="workshops" className="py-20 lg:py-32 bg-muted/30 relative overflow-hidden">
@@ -50,40 +69,48 @@ export const WorkshopsSection = () => {
                     <h3 className="text-xl lg:text-2xl font-semibold text-foreground">
                       {workshop.title}
                     </h3>
-                    {workshop.registrationOpen && (
+                    {workshop.status === "open" && (
                       <span className="px-2 py-0.5 bg-green-500/10 text-green-600 text-xs font-semibold rounded">
                         Open
                       </span>
                     )}
                   </div>
-                  <p className="text-muted-foreground mb-4">
-                    {workshop.description}
-                  </p>
+                  {workshop.description && (
+                    <p className="text-muted-foreground mb-4">
+                      {workshop.description}
+                    </p>
+                  )}
                   
                   {/* Meta Info */}
                   <div className="flex flex-wrap gap-4 text-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="w-4 h-4 text-primary" />
-                      {workshop.date}
+                      {new Date(workshop.date).toLocaleDateString()}
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Clock className="w-4 h-4 text-primary" />
-                      {workshop.duration}
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      {workshop.location}
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Users className="w-4 h-4 text-primary" />
-                      {workshop.seats} Seats
-                    </div>
+                    {workshop.start_time && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Clock className="w-4 h-4 text-primary" />
+                        {workshop.start_time}
+                      </div>
+                    )}
+                    {workshop.location && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="w-4 h-4 text-primary" />
+                        {workshop.location}
+                      </div>
+                    )}
+                    {workshop.max_participants && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Users className="w-4 h-4 text-primary" />
+                        {workshop.registrations}/{workshop.max_participants} Seats
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* CTA */}
                 <div className="flex-shrink-0">
-                  {workshop.registrationOpen ? (
+                  {workshop.status === "open" ? (
                     <Link to={`/workshop/${workshop.id}/register`}>
                       <Button variant="hero" className="w-full lg:w-auto group">
                         Register Now

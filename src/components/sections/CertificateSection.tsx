@@ -1,34 +1,33 @@
 import { motion } from "framer-motion";
 import { Award, Shield, Star, Trophy } from "lucide-react";
+import { useEffect, useState } from "react";
+import { certificateService, Certificate } from "@/services/certificateService";
 
-const certificates = [
-  {
-    icon: Trophy,
-    title: "Best Cyber Security Training Institute",
-    issuer: "National Cyber Security Council",
-    year: "2024",
-  },
-  {
-    icon: Award,
-    title: "Excellence in IT Education",
-    issuer: "Ministry of Education",
-    year: "2023",
-  },
-  {
-    icon: Star,
-    title: "Top Rated Training Provider",
-    issuer: "Industry Skills Board",
-    year: "2024",
-  },
-  {
-    icon: Shield,
-    title: "Accredited Training Center",
-    issuer: "International Cyber Security Association",
-    year: "2023",
-  },
-];
+const iconMap: { [key: string]: typeof Trophy } = {
+  Trophy,
+  Award,
+  Star,
+  Shield,
+};
 
 export const CertificateSection = () => {
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      try {
+        const data = await certificateService.getAll();
+        // Filter featured or take first 4
+        const featured = data.filter(c => c.is_featured).length > 0
+          ? data.filter(c => c.is_featured).slice(0, 4)
+          : data.slice(0, 4);
+        setCertificates(featured);
+      } catch (error) {
+        console.error("Failed to fetch certificates", error);
+      }
+    };
+    fetchCertificates();
+  }, []);
   return (
     <section id="certificate" className="py-20 lg:py-32 relative overflow-hidden">
       {/* Background */}
@@ -57,36 +56,39 @@ export const CertificateSection = () => {
 
         {/* Certificates Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {certificates.map((cert, index) => (
-            <motion.div
-              key={cert.title}
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-card p-8 rounded-2xl border border-border/50 text-center hover:border-primary/30 hover:shadow-lg transition-all duration-500 group"
-            >
-              {/* Icon */}
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <cert.icon className="w-8 h-8 text-primary" />
-              </div>
+          {certificates.map((cert, index) => {
+            const Icon = iconMap[Object.keys(iconMap)[index % Object.keys(iconMap).length]] || Trophy;
+            return (
+              <motion.div
+                key={cert.id}
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-card p-8 rounded-2xl border border-border/50 text-center hover:border-primary/30 hover:shadow-lg transition-all duration-500 group"
+              >
+                {/* Icon */}
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Icon className="w-8 h-8 text-primary" />
+                </div>
 
-              {/* Year Badge */}
-              <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full mb-4">
-                {cert.year}
-              </span>
+                {/* Year Badge */}
+                <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full mb-4">
+                  {cert.year}
+                </span>
 
-              {/* Title */}
-              <h3 className="text-lg font-semibold text-foreground mb-2 leading-snug">
-                {cert.title}
-              </h3>
+                {/* Title */}
+                <h3 className="text-lg font-semibold text-foreground mb-2 leading-snug">
+                  {cert.title}
+                </h3>
 
-              {/* Issuer */}
-              <p className="text-muted-foreground text-sm">
-                {cert.issuer}
-              </p>
-            </motion.div>
-          ))}
+                {/* Issuer */}
+                <p className="text-muted-foreground text-sm">
+                  {cert.issuer}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Trust Bar */}

@@ -1,60 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-
-const galleryImages = [
-  {
-    id: 1,
-    src: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&h=600&fit=crop",
-    title: "Training Session",
-    category: "classroom",
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&h=600&fit=crop",
-    title: "Hands-on Lab",
-    category: "lab",
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&fit=crop",
-    title: "Annual Conference",
-    category: "events",
-  },
-  {
-    id: 4,
-    src: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&h=600&fit=crop",
-    title: "Workshop Session",
-    category: "workshop",
-  },
-  {
-    id: 5,
-    src: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop",
-    title: "Team Collaboration",
-    category: "classroom",
-  },
-  {
-    id: 6,
-    src: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&h=600&fit=crop",
-    title: "Certification Day",
-    category: "events",
-  },
-  {
-    id: 7,
-    src: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=600&fit=crop",
-    title: "Modern Facility",
-    category: "lab",
-  },
-  {
-    id: 8,
-    src: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=600&fit=crop",
-    title: "Guest Lecture",
-    category: "events",
-  },
-];
+import { galleryService, Gallery } from "@/services/galleryService";
 
 export const GallerySection = () => {
-  const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null);
+  const [galleryImages, setGalleryImages] = useState<Gallery[]>([]);
+  const [selectedImage, setSelectedImage] = useState<Gallery | null>(null);
+
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        const data = await galleryService.getAll();
+        // Take first 8 or all if less
+        setGalleryImages(data.slice(0, 8));
+      } catch (error) {
+        console.error("Failed to fetch gallery", error);
+      }
+    };
+    fetchGallery();
+  }, []);
 
   return (
     <section id="gallery" className="py-20 lg:py-32 relative">
@@ -92,7 +56,7 @@ export const GallerySection = () => {
             >
               <div className={`aspect-square ${(index === 0 || index === 5) ? "md:aspect-auto md:h-full" : ""}`}>
                 <img
-                  src={image.src}
+                  src={image.image || "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&h=600&fit=crop"}
                   alt={image.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
@@ -102,6 +66,9 @@ export const GallerySection = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute bottom-4 left-4 right-4">
                   <p className="text-white font-medium">{image.title}</p>
+                  {image.category && (
+                    <p className="text-white/80 text-sm">{image.category}</p>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -126,7 +93,7 @@ export const GallerySection = () => {
                 onClick={(e) => e.stopPropagation()}
               >
                 <img
-                  src={selectedImage.src}
+                  src={selectedImage.image || "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&h=600&fit=crop"}
                   alt={selectedImage.title}
                   className="w-full h-full object-contain rounded-lg"
                 />
@@ -139,6 +106,9 @@ export const GallerySection = () => {
                 </button>
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-foreground/80 to-transparent">
                   <p className="text-white text-lg font-medium">{selectedImage.title}</p>
+                  {selectedImage.category && (
+                    <p className="text-white/80 text-sm">{selectedImage.category}</p>
+                  )}
                 </div>
               </motion.div>
             </motion.div>

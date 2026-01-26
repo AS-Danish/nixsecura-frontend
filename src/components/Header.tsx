@@ -34,7 +34,7 @@ export const Header = () => {
               <Shield className="w-6 h-6 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold text-foreground">
-              Cyber<span className="text-primary">Shield</span>
+              Nicsexura<span className="text-primary">Institute</span>
             </span>
           </motion.a>
 

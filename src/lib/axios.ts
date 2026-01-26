@@ -10,4 +10,16 @@ const api = axios.create({
   },
 });
 
+// Add response interceptor to handle errors gracefully
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Don't log 404 errors as they might just mean empty database
+    if (error.response?.status !== 404) {
+      console.error('API Error:', error);
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

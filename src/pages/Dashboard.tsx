@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, FileText, GraduationCap, Calendar, Award,
-  MessageSquare, Image, Users, LogOut, Menu, X, Plus, Search,
+  MessageSquare, Image, Users, LogOut, Menu, X, Plus,
   Edit, Trash2, MoreVertical
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,8 +31,14 @@ import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ImageUpload";
 import { blogService, BlogInput } from "@/services/blogService";
 import { BlogPost } from "@/data/blogs";
-import { courses as courseData, Course } from "@/data/courses";
+import { Course } from "@/data/courses";
 import { courseService, CourseInput } from "@/services/courseService";
+import { workshopService, Workshop, WorkshopInput } from "@/services/workshopService";
+import { testimonialService, Testimonial, TestimonialInput } from "@/services/testimonialService";
+import { facultyService, Faculty, FacultyInput } from "@/services/facultyService";
+import { certificateService, Certificate, CertificateInput } from "@/services/certificateService";
+import { galleryService, Gallery, GalleryInput } from "@/services/galleryService";
+import { useAuth } from "@/context/AuthContext";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -53,58 +59,30 @@ const formats = [
   'link', 'image'
 ];
 
-// Courses come from data source
-const sampleCourses = courseData;
-const datasetCourseIds = new Set(sampleCourses.map(c => c.id));
-
-const sampleWorkshops = [
-  { id: "1", title: "Penetration Testing Bootcamp", date: "2024-02-15", registrations: 45, status: "upcoming" },
-  { id: "2", title: "Malware Analysis Workshop", date: "2024-03-01", registrations: 32, status: "open" },
-  { id: "3", title: "Cloud Security Essentials", date: "2024-01-20", registrations: 50, status: "completed" },
-];
-
-const sampleTestimonials = [
-  { id: "1", name: "Rahul Sharma", course: "CEH", rating: 5 },
-  { id: "2", name: "Priya Patel", course: "Web Security", rating: 5 },
-  { id: "3", name: "Amit Kumar", course: "Network Security", rating: 4 },
-];
-
-const sampleFaculty = [
-  { id: "1", name: "Dr. Rajesh Kumar", specialization: "Ethical Hacking", experience: "15 years" },
-  { id: "2", name: "Priya Sharma", specialization: "Network Security", experience: "10 years" },
-  { id: "3", name: "Amit Singh", specialization: "Cloud Security", experience: "8 years" },
-];
-
-const sampleCertificates = [
-  { id: "1", title: "ISO 27001 Certified", issuer: "ISO", year: "2023" },
-  { id: "2", title: "NASSCOM Excellence Award", issuer: "NASSCOM", year: "2024" },
-  { id: "3", title: "Best Training Institute", issuer: "CII", year: "2023" },
-];
-
-const sampleGallery = [
-  { id: "1", title: "Cyber Lab", category: "Facilities", image: "/placeholder.svg" },
-  { id: "2", title: "Workshop 2024", category: "Events", image: "/placeholder.svg" },
-  { id: "3", title: "Graduation Day", category: "Events", image: "/placeholder.svg" },
-];
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
-  const [searchQuery, setSearchQuery] = useState("");
   
   // Data states
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [workshops, setWorkshops] = useState<Workshop[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [faculty, setFaculty] = useState<Faculty[]>([]);
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [gallery, setGallery] = useState<Gallery[]>([]);
   
   // Modal states
   const [blogModal, setBlogModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: BlogPost }>({ open: false, mode: "add" });
   const [courseModal, setCourseModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: Course }>({ open: false, mode: "add" });
-  const [workshopModal, setWorkshopModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: typeof sampleWorkshops[0] }>({ open: false, mode: "add" });
-  const [testimonialModal, setTestimonialModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: typeof sampleTestimonials[0] }>({ open: false, mode: "add" });
-  const [facultyModal, setFacultyModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: typeof sampleFaculty[0] }>({ open: false, mode: "add" });
-  const [certificateModal, setCertificateModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: typeof sampleCertificates[0] }>({ open: false, mode: "add" });
-  const [galleryModal, setGalleryModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: typeof sampleGallery[0] }>({ open: false, mode: "add" });
+  const [workshopModal, setWorkshopModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: Workshop }>({ open: false, mode: "add" });
+  const [testimonialModal, setTestimonialModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: Testimonial }>({ open: false, mode: "add" });
+  const [facultyModal, setFacultyModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: Faculty }>({ open: false, mode: "add" });
+  const [certificateModal, setCertificateModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: Certificate }>({ open: false, mode: "add" });
+  const [galleryModal, setGalleryModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: Gallery }>({ open: false, mode: "add" });
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; type: string; id: string }>({ open: false, type: "", id: "" });
 
   // Blog Form State
@@ -124,15 +102,91 @@ const Dashboard = () => {
   const fetchCourses = async () => {
     try {
       const data = await courseService.getAll();
-      setCourses(data);
-    } catch (e) {
+      setCourses(Array.isArray(data) ? data : []);
+    } catch (e: any) {
       console.error("Failed to fetch courses", e);
-      toast({ title: "Error", description: "Failed to fetch courses.", variant: "destructive" });
+      setCourses([]); // Set empty array on error
+      // Only show error if it's a real error (not 404 or network issue)
+      if (e?.response?.status && e?.response?.status !== 404 && e?.response?.status !== 0) {
+        toast({ title: "Error", description: "Failed to fetch courses.", variant: "destructive" });
+      }
+    }
+  };
+
+  const fetchWorkshops = async () => {
+    try {
+      const data = await workshopService.getAll();
+      setWorkshops(Array.isArray(data) ? data : []);
+    } catch (e: any) {
+      console.error("Failed to fetch workshops", e);
+      setWorkshops([]); // Set empty array on error
+      if (e?.response?.status && e?.response?.status !== 404 && e?.response?.status !== 0) {
+        toast({ title: "Error", description: "Failed to fetch workshops.", variant: "destructive" });
+      }
+    }
+  };
+
+  const fetchTestimonials = async () => {
+    try {
+      const data = await testimonialService.getAll();
+      setTestimonials(Array.isArray(data) ? data : []);
+    } catch (e: any) {
+      console.error("Failed to fetch testimonials", e);
+      setTestimonials([]); // Set empty array on error
+      if (e?.response?.status && e?.response?.status !== 404 && e?.response?.status !== 0) {
+        toast({ title: "Error", description: "Failed to fetch testimonials.", variant: "destructive" });
+      }
+    }
+  };
+
+  const fetchFaculty = async () => {
+    try {
+      const data = await facultyService.getAll();
+      setFaculty(Array.isArray(data) ? data : []);
+    } catch (e: any) {
+      console.error("Failed to fetch faculty", e);
+      setFaculty([]); // Set empty array on error
+      if (e?.response?.status && e?.response?.status !== 404 && e?.response?.status !== 0) {
+        toast({ title: "Error", description: "Failed to fetch faculty.", variant: "destructive" });
+      }
+    }
+  };
+
+  const fetchCertificates = async () => {
+    try {
+      const data = await certificateService.getAll();
+      setCertificates(Array.isArray(data) ? data : []);
+    } catch (e: any) {
+      console.error("Failed to fetch certificates", e);
+      setCertificates([]); // Set empty array on error
+      if (e?.response?.status && e?.response?.status !== 404 && e?.response?.status !== 0) {
+        toast({ title: "Error", description: "Failed to fetch certificates.", variant: "destructive" });
+      }
+    }
+  };
+
+  const fetchGallery = async () => {
+    try {
+      const data = await galleryService.getAll();
+      setGallery(Array.isArray(data) ? data : []);
+    } catch (e: any) {
+      console.error("Failed to fetch gallery", e);
+      setGallery([]); // Set empty array on error
+      // Only show error if it's a real error (not 404 or network issue)
+      if (e?.response?.status && e?.response?.status !== 404 && e?.response?.status !== 0) {
+        toast({ title: "Error", description: "Failed to fetch gallery items.", variant: "destructive" });
+      }
     }
   };
 
   useEffect(() => {
+    fetchBlogs();
     fetchCourses();
+    fetchWorkshops();
+    fetchTestimonials();
+    fetchFaculty();
+    fetchCertificates();
+    fetchGallery();
   }, []);
 
   // Course Form State
@@ -150,6 +204,73 @@ const Dashboard = () => {
     image: "",
     description: "",
     curriculum: ""
+  });
+
+  // Workshop Form State
+  const [workshopForm, setWorkshopForm] = useState<WorkshopInput>({
+    title: "",
+    description: "",
+    image: "",
+    date: new Date().toISOString().split('T')[0],
+    start_time: "",
+    end_time: "",
+    location: "",
+    max_participants: undefined,
+    registrations: 0,
+    status: "upcoming",
+    price: undefined,
+    instructors: []
+  });
+
+  // Testimonial Form State
+  const [testimonialForm, setTestimonialForm] = useState<TestimonialInput>({
+    name: "",
+    course: "",
+    testimonial: "",
+    rating: 5,
+    image: "",
+    position: "",
+    company: "",
+    is_featured: false
+  });
+
+  // Faculty Form State
+  const [facultyForm, setFacultyForm] = useState<FacultyInput>({
+    name: "",
+    specialization: "",
+    bio: "",
+    experience: "",
+    image: "",
+    email: "",
+    phone: "",
+    qualifications: [],
+    expertise_areas: [],
+    order: 0,
+    is_active: true
+  });
+
+  // Certificate Form State
+  const [certificateForm, setCertificateForm] = useState<CertificateInput>({
+    title: "",
+    issuer: "",
+    year: new Date().getFullYear().toString(),
+    image: "",
+    description: "",
+    certificate_number: "",
+    issue_date: "",
+    expiry_date: "",
+    order: 0,
+    is_featured: false
+  });
+
+  // Gallery Form State
+  const [galleryForm, setGalleryForm] = useState<GalleryInput>({
+    title: "",
+    category: "Facilities",
+    image: "",
+    description: "",
+    order: 0,
+    is_featured: false
   });
 
   useEffect(() => {
@@ -203,7 +324,7 @@ const Dashboard = () => {
       }
     };
     loadBlogData();
-  }, [blogModal.open, blogModal.mode, blogModal.data]);
+  }, [blogModal.open, blogModal.mode]);
 
   useEffect(() => {
     if (courseModal.open && courseModal.mode === "edit" && courseModal.data) {
@@ -229,13 +350,161 @@ const Dashboard = () => {
     }
   }, [courseModal.open, courseModal.mode, courseModal.data]);
 
+  useEffect(() => {
+    if (workshopModal.open && workshopModal.mode === "edit" && workshopModal.data) {
+      setWorkshopForm({
+        title: workshopModal.data.title || "",
+        description: workshopModal.data.description || "",
+        image: workshopModal.data.image || "",
+        date: workshopModal.data.date || new Date().toISOString().split('T')[0],
+        start_time: workshopModal.data.start_time || "",
+        end_time: workshopModal.data.end_time || "",
+        location: workshopModal.data.location || "",
+        max_participants: workshopModal.data.max_participants,
+        registrations: workshopModal.data.registrations || 0,
+        status: workshopModal.data.status || "upcoming",
+        price: workshopModal.data.price,
+        instructors: workshopModal.data.instructors || []
+      });
+    } else if (workshopModal.open && workshopModal.mode === "add") {
+      setWorkshopForm({
+        title: "",
+        description: "",
+        image: "",
+        date: new Date().toISOString().split('T')[0],
+        start_time: "",
+        end_time: "",
+        location: "",
+        max_participants: undefined,
+        registrations: 0,
+        status: "upcoming",
+        price: undefined,
+        instructors: []
+      });
+    }
+  }, [workshopModal.open, workshopModal.mode, workshopModal.data]);
+
+  useEffect(() => {
+    if (testimonialModal.open && testimonialModal.mode === "edit" && testimonialModal.data) {
+      setTestimonialForm({
+        name: testimonialModal.data.name || "",
+        course: testimonialModal.data.course || "",
+        testimonial: testimonialModal.data.testimonial || "",
+        rating: testimonialModal.data.rating || 5,
+        image: testimonialModal.data.image || "",
+        position: testimonialModal.data.position || "",
+        company: testimonialModal.data.company || "",
+        is_featured: testimonialModal.data.is_featured || false
+      });
+    } else if (testimonialModal.open && testimonialModal.mode === "add") {
+      setTestimonialForm({
+        name: "",
+        course: "",
+        testimonial: "",
+        rating: 5,
+        image: "",
+        position: "",
+        company: "",
+        is_featured: false
+      });
+    }
+  }, [testimonialModal.open, testimonialModal.mode, testimonialModal.data]);
+
+  useEffect(() => {
+    if (facultyModal.open && facultyModal.mode === "edit" && facultyModal.data) {
+      setFacultyForm({
+        name: facultyModal.data.name || "",
+        specialization: facultyModal.data.specialization || "",
+        bio: facultyModal.data.bio || "",
+        experience: facultyModal.data.experience || "",
+        image: facultyModal.data.image || "",
+        email: facultyModal.data.email || "",
+        phone: facultyModal.data.phone || "",
+        qualifications: facultyModal.data.qualifications || [],
+        expertise_areas: facultyModal.data.expertise_areas || [],
+        order: facultyModal.data.order || 0,
+        is_active: facultyModal.data.is_active !== undefined ? facultyModal.data.is_active : true
+      });
+    } else if (facultyModal.open && facultyModal.mode === "add") {
+      setFacultyForm({
+        name: "",
+        specialization: "",
+        bio: "",
+        experience: "",
+        image: "",
+        email: "",
+        phone: "",
+        qualifications: [],
+        expertise_areas: [],
+        order: 0,
+        is_active: true
+      });
+    }
+  }, [facultyModal.open, facultyModal.mode, facultyModal.data]);
+
+  useEffect(() => {
+    if (certificateModal.open && certificateModal.mode === "edit" && certificateModal.data) {
+      setCertificateForm({
+        title: certificateModal.data.title || "",
+        issuer: certificateModal.data.issuer || "",
+        year: certificateModal.data.year || new Date().getFullYear().toString(),
+        image: certificateModal.data.image || "",
+        description: certificateModal.data.description || "",
+        certificate_number: certificateModal.data.certificate_number || "",
+        issue_date: certificateModal.data.issue_date || "",
+        expiry_date: certificateModal.data.expiry_date || "",
+        order: certificateModal.data.order || 0,
+        is_featured: certificateModal.data.is_featured || false
+      });
+    } else if (certificateModal.open && certificateModal.mode === "add") {
+      setCertificateForm({
+        title: "",
+        issuer: "",
+        year: new Date().getFullYear().toString(),
+        image: "",
+        description: "",
+        certificate_number: "",
+        issue_date: "",
+        expiry_date: "",
+        order: 0,
+        is_featured: false
+      });
+    }
+  }, [certificateModal.open, certificateModal.mode, certificateModal.data]);
+
+  useEffect(() => {
+    if (galleryModal.open && galleryModal.mode === "edit" && galleryModal.data) {
+      setGalleryForm({
+        title: galleryModal.data.title || "",
+        category: galleryModal.data.category || "Facilities",
+        image: galleryModal.data.image || "",
+        description: galleryModal.data.description || "",
+        order: galleryModal.data.order || 0,
+        is_featured: galleryModal.data.is_featured || false
+      });
+    } else if (galleryModal.open && galleryModal.mode === "add") {
+      setGalleryForm({
+        title: "",
+        category: "Facilities",
+        image: "",
+        description: "",
+        order: 0,
+        is_featured: false
+      });
+    }
+  }, [galleryModal.open, galleryModal.mode, galleryModal.data]);
+
   const fetchBlogs = async () => {
     try {
         const data = await blogService.getAll();
-        setBlogs(data);
-    } catch (error) {
+        setBlogs(Array.isArray(data) ? data : []);
+    } catch (error: any) {
         console.error("Failed to fetch blogs", error);
-        toast({ title: "Error", description: "Failed to fetch blogs.", variant: "destructive" });
+        setBlogs([]); // Set empty array on error
+        // Only show error if it's a real error (not 404 or network issue)
+        if (error?.response?.status && error?.response?.status !== 404 && error?.response?.status !== 0) {
+          toast({ title: "Error", description: "Failed to fetch blogs.", variant: "destructive" });
+        }
     }
   };
 
@@ -251,87 +520,222 @@ const Dashboard = () => {
   ];
 
   const handleDelete = async () => {
-    if (deleteModal.type === "blog") {
-        try {
-            await blogService.delete(deleteModal.id);
-            toast({ title: "Blog Deleted", description: "The blog post has been successfully deleted." });
-            fetchBlogs();
-        } catch (error) {
-            toast({ title: "Error", description: "Failed to delete blog.", variant: "destructive" });
-        }
-    } else if (deleteModal.type === "course") {
-        try {
-          await courseService.delete(deleteModal.id);
-          toast({ title: "Course Deleted", description: "The course has been successfully deleted." });
-          fetchCourses();
-        } catch (error) {
-          toast({ title: "Error", description: "Failed to delete course.", variant: "destructive" });
-        }
-    } else {
-        toast({ title: "Item Deleted", description: "The item has been successfully deleted." });
+    try {
+      if (deleteModal.type === "blog") {
+        await blogService.delete(deleteModal.id);
+        toast({ title: "Blog Deleted", description: "The blog post has been successfully deleted." });
+        fetchBlogs();
+      } else if (deleteModal.type === "course") {
+        await courseService.delete(deleteModal.id);
+        toast({ title: "Course Deleted", description: "The course has been successfully deleted." });
+        fetchCourses();
+      } else if (deleteModal.type === "workshop") {
+        await workshopService.delete(deleteModal.id);
+        toast({ title: "Workshop Deleted", description: "The workshop has been successfully deleted." });
+        fetchWorkshops();
+      } else if (deleteModal.type === "testimonial") {
+        await testimonialService.delete(deleteModal.id);
+        toast({ title: "Testimonial Deleted", description: "The testimonial has been successfully deleted." });
+        fetchTestimonials();
+      } else if (deleteModal.type === "faculty") {
+        await facultyService.delete(deleteModal.id);
+        toast({ title: "Faculty Deleted", description: "The faculty member has been successfully deleted." });
+        fetchFaculty();
+      } else if (deleteModal.type === "certificate") {
+        await certificateService.delete(deleteModal.id);
+        toast({ title: "Certificate Deleted", description: "The certificate has been successfully deleted." });
+        fetchCertificates();
+      } else if (deleteModal.type === "gallery") {
+        await galleryService.delete(deleteModal.id);
+        toast({ title: "Gallery Item Deleted", description: "The gallery item has been successfully deleted." });
+        fetchGallery();
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to delete item.", variant: "destructive" });
     }
     setDeleteModal({ open: false, type: "", id: "" });
   };
 
   const handleSave = async (type: string) => {
-    if (type === "blog") {
-        try {
-            if (blogModal.mode === "add") {
-                await blogService.create(blogForm);
-                toast({ title: "Blog Created", description: "New blog post has been published." });
-            } else if (blogModal.data) {
-                await blogService.update(blogModal.data.id, blogForm);
-                toast({ title: "Blog Updated", description: "Blog post has been updated." });
-            }
-            fetchBlogs();
-            setBlogModal({ ...blogModal, open: false });
-        } catch (error) {
-            console.error(error);
-            toast({ title: "Error", description: "Failed to save blog.", variant: "destructive" });
-        }
-    } else if (type === "course") {
-        try {
-          const curriculumArray = courseForm.curriculum.split('\n')
-            .filter(line => line.trim() !== '')
-            .map(line => ({
-              module: line.trim(),
-              topics: [line.trim()], // Simplified for now
-              duration: "TBD"
-            }));
+    try {
+      if (type === "blog") {
+        // Clean and prepare blog data
+        const payload = {
+          ...blogForm,
+          title: blogForm.title.trim(),
+          excerpt: blogForm.excerpt.trim(),
+          tags: Array.isArray(blogForm.tags) 
+            ? blogForm.tags.filter(t => t.trim() !== '') 
+            : (blogForm.tags ? [blogForm.tags].filter(t => t.trim() !== '') : []),
+          image: blogForm.image?.trim() || null,
+          published_at: blogForm.published_at || null,
+        };
 
-          if (courseModal.mode === "add") {
-            const payload: CourseInput = {
-              title: courseForm.title,
-              description: courseForm.description,
-              image: courseForm.image,
-              category: courseForm.category,
-              duration: courseForm.duration,
-              curriculum: curriculumArray,
-            };
-            await courseService.create(payload);
-            toast({ title: "Course Added", description: "New course has been added." });
-            fetchCourses();
-          } else if (courseModal.mode === "edit" && courseModal.data) {
-            const payload: Partial<CourseInput> = {
-              title: courseForm.title,
-              description: courseForm.description,
-              image: courseForm.image,
-              category: courseForm.category,
-              duration: courseForm.duration,
-              curriculum: curriculumArray,
-            };
-            await courseService.update(courseModal.data.id, payload);
-            toast({ title: "Course Updated", description: "Course has been updated." });
-            fetchCourses();
-          }
-          setCourseModal({ open: false, mode: "add" });
-          setCourseForm({ title: "", category: "Beginner", duration: "", image: "", description: "" });
-        } catch (error) {
-          console.error(error);
-          toast({ title: "Error", description: "Failed to save course.", variant: "destructive" });
+        if (blogModal.mode === "add") {
+          await blogService.create(payload);
+          toast({ title: "Blog Created", description: "New blog post has been published." });
+        } else if (blogModal.data) {
+          await blogService.update(blogModal.data.id, payload);
+          toast({ title: "Blog Updated", description: "Blog post has been updated." });
         }
-    } else {
-        toast({ title: "Saved Successfully", description: `The ${type} has been saved.` });
+        fetchBlogs();
+        setBlogModal({ ...blogModal, open: false });
+      } else if (type === "course") {
+        const curriculumArray = courseForm.curriculum
+          ? courseForm.curriculum.split('\n')
+              .filter(line => line.trim() !== '')
+              .map(line => ({
+                module: line.trim(),
+                topics: [line.trim()],
+                duration: "TBD"
+              }))
+          : [];
+
+        // Clean and prepare course data
+        const payload: CourseInput = {
+          title: courseForm.title.trim(),
+          description: courseForm.description.trim(),
+          image: courseForm.image?.trim() || null,
+          category: courseForm.category,
+          duration: courseForm.duration?.trim() || null,
+          curriculum: curriculumArray,
+        };
+
+        if (courseModal.mode === "add") {
+          await courseService.create(payload);
+          toast({ title: "Course Added", description: "New course has been added." });
+          fetchCourses();
+        } else if (courseModal.mode === "edit" && courseModal.data) {
+          await courseService.update(courseModal.data.id, payload);
+          toast({ title: "Course Updated", description: "Course has been updated." });
+          fetchCourses();
+        }
+        setCourseModal({ open: false, mode: "add" });
+        setCourseForm({ title: "", category: "Beginner", duration: "", image: "", description: "", curriculum: "" });
+      } else if (type === "workshop") {
+        // Clean and prepare workshop data
+        const cleanWorkshopData = {
+          ...workshopForm,
+          description: workshopForm.description?.trim() || null,
+          location: workshopForm.location?.trim() || null,
+          image: workshopForm.image?.trim() || null,
+          start_time: workshopForm.start_time?.trim() || null,
+          end_time: workshopForm.end_time?.trim() || null,
+          instructors: Array.isArray(workshopForm.instructors) ? workshopForm.instructors : [],
+          max_participants: workshopForm.max_participants || null,
+          registrations: workshopForm.registrations || 0,
+          price: workshopForm.price || null,
+        };
+        
+        if (workshopModal.mode === "add") {
+          await workshopService.create(cleanWorkshopData);
+          toast({ title: "Workshop Added", description: "New workshop has been added." });
+          fetchWorkshops();
+        } else if (workshopModal.mode === "edit" && workshopModal.data) {
+          await workshopService.update(workshopModal.data.id, cleanWorkshopData);
+          toast({ title: "Workshop Updated", description: "Workshop has been updated." });
+          fetchWorkshops();
+        }
+        setWorkshopModal({ open: false, mode: "add" });
+      } else if (type === "testimonial") {
+        // Clean and prepare testimonial data
+        const cleanTestimonialData = {
+          ...testimonialForm,
+          course: testimonialForm.course?.trim() || null,
+          testimonial: testimonialForm.testimonial?.trim() || null,
+          position: testimonialForm.position?.trim() || null,
+          company: testimonialForm.company?.trim() || null,
+          image: testimonialForm.image?.trim() || null,
+          is_featured: testimonialForm.is_featured || false,
+        };
+        
+        if (testimonialModal.mode === "add") {
+          await testimonialService.create(cleanTestimonialData);
+          toast({ title: "Testimonial Added", description: "New testimonial has been added." });
+          fetchTestimonials();
+        } else if (testimonialModal.mode === "edit" && testimonialModal.data) {
+          await testimonialService.update(testimonialModal.data.id, cleanTestimonialData);
+          toast({ title: "Testimonial Updated", description: "Testimonial has been updated." });
+          fetchTestimonials();
+        }
+        setTestimonialModal({ open: false, mode: "add" });
+      } else if (type === "faculty") {
+        // Clean and prepare faculty data
+        const cleanFacultyData = {
+          ...facultyForm,
+          qualifications: Array.isArray(facultyForm.qualifications) ? facultyForm.qualifications.filter(q => q.trim() !== '') : [],
+          expertise_areas: Array.isArray(facultyForm.expertise_areas) ? facultyForm.expertise_areas.filter(e => e.trim() !== '') : [],
+          email: facultyForm.email?.trim() || null,
+          phone: facultyForm.phone?.trim() || null,
+          bio: facultyForm.bio?.trim() || null,
+          experience: facultyForm.experience?.trim() || null,
+          image: facultyForm.image?.trim() || null,
+          is_active: facultyForm.is_active !== undefined ? facultyForm.is_active : true,
+        };
+        
+        if (facultyModal.mode === "add") {
+          await facultyService.create(cleanFacultyData);
+          toast({ title: "Faculty Added", description: "New faculty member has been added." });
+          fetchFaculty();
+        } else if (facultyModal.mode === "edit" && facultyModal.data) {
+          await facultyService.update(facultyModal.data.id, cleanFacultyData);
+          toast({ title: "Faculty Updated", description: "Faculty member has been updated." });
+          fetchFaculty();
+        }
+        setFacultyModal({ open: false, mode: "add" });
+      } else if (type === "certificate") {
+        // Clean and prepare certificate data
+        const cleanCertificateData = {
+          ...certificateForm,
+          description: certificateForm.description?.trim() || null,
+          certificate_number: certificateForm.certificate_number?.trim() || null,
+          image: certificateForm.image?.trim() || null,
+          issue_date: certificateForm.issue_date || null,
+          expiry_date: certificateForm.expiry_date || null,
+          is_featured: certificateForm.is_featured || false,
+        };
+        
+        if (certificateModal.mode === "add") {
+          await certificateService.create(cleanCertificateData);
+          toast({ title: "Certificate Added", description: "New certificate has been added." });
+          fetchCertificates();
+        } else if (certificateModal.mode === "edit" && certificateModal.data) {
+          await certificateService.update(certificateModal.data.id, cleanCertificateData);
+          toast({ title: "Certificate Updated", description: "Certificate has been updated." });
+          fetchCertificates();
+        }
+        setCertificateModal({ open: false, mode: "add" });
+      } else if (type === "gallery" || type === "image") {
+        // Clean and prepare gallery data
+        const cleanGalleryData = {
+          ...galleryForm,
+          description: galleryForm.description?.trim() || null,
+          is_featured: galleryForm.is_featured || false,
+        };
+        
+        if (galleryModal.mode === "add") {
+          await galleryService.create(cleanGalleryData);
+          toast({ title: "Gallery Item Added", description: "New gallery item has been added." });
+          fetchGallery();
+        } else if (galleryModal.mode === "edit" && galleryModal.data) {
+          await galleryService.update(galleryModal.data.id, cleanGalleryData);
+          toast({ title: "Gallery Item Updated", description: "Gallery item has been updated." });
+          fetchGallery();
+        }
+        setGalleryModal({ open: false, mode: "add" });
+      }
+    } catch (error: any) {
+      console.error(`Failed to save ${type}:`, error);
+      // Show validation errors from backend if available
+      const errorMessage = error?.response?.data?.message 
+        || error?.response?.data?.error 
+        || (error?.response?.data?.errors ? Object.values(error.response.data.errors).flat().join(', ') : null)
+        || `Failed to save ${type}. Please check all required fields.`;
+      toast({ 
+        title: "Error", 
+        description: errorMessage, 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -379,7 +783,10 @@ const Dashboard = () => {
           <Button
             variant="ghost"
             className="w-full justify-start text-muted-foreground hover:text-destructive"
-            onClick={() => navigate("/login")}
+            onClick={async () => {
+              await logout();
+              navigate("/login");
+            }}
           >
             <LogOut className="w-5 h-5 mr-3" />
             Logout
@@ -395,15 +802,6 @@ const Dashboard = () => {
             <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-64 bg-muted/50"
-              />
-            </div>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="outline" onClick={() => navigate("/")}>
@@ -423,10 +821,10 @@ const Dashboard = () => {
               <h2 className="text-2xl font-bold text-foreground">Dashboard Overview</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: "Total Blogs", value: blogs.length.toString(), change: "+3 this month" },
+                  { label: "Total Blogs", value: blogs.length.toString(), change: "" },
                   { label: "Active Courses", value: courses.length.toString(), change: "" },
-                  { label: "Upcoming Workshops", value: "5", change: "120 registrations" },
-                  { label: "Testimonials", value: "48", change: "5 pending" },
+                  { label: "Upcoming Workshops", value: workshops.filter(w => w.status === "upcoming" || w.status === "open").length.toString(), change: workshops.length > 0 ? `${workshops.reduce((sum, w) => sum + (w.registrations || 0), 0)} registrations` : "" },
+                  { label: "Testimonials", value: testimonials.length.toString(), change: testimonials.length > 0 ? `${testimonials.filter(t => t.is_featured).length} featured` : "" },
                 ].map((stat, i) => (
                   <Card key={i} className="border-border/50">
                     <CardContent className="pt-6">
@@ -445,7 +843,7 @@ const Dashboard = () => {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-foreground">Manage Blogs</h2>
-                <Button variant="hero" onClick={() => setBlogModal({ open: true, mode: "add" })}>
+                <Button variant="hero" onClick={() => setBlogModal({ open: true, mode: "add", data: undefined })}>
                   <Plus className="w-4 h-4 mr-2" /> Add Blog
                 </Button>
               </div>
@@ -460,28 +858,36 @@ const Dashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {blogs.map((blog) => (
-                      <TableRow key={blog.id}>
-                        <TableCell className="font-medium">{blog.title}</TableCell>
-                        <TableCell>{blog.category}</TableCell>
-                        <TableCell>{blog.date}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setBlogModal({ open: true, mode: "edit", data: blog })}>
-                                <Edit className="w-4 h-4 mr-2" /> Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "blog", id: blog.id })}>
-                                <Trash2 className="w-4 h-4 mr-2" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                    {blogs.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                          No blogs found. Click "Add Blog" to create your first blog post.
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      blogs.map((blog) => (
+                        <TableRow key={blog.id}>
+                          <TableCell className="font-medium">{blog.title}</TableCell>
+                          <TableCell>{blog.category}</TableCell>
+                          <TableCell>{blog.date}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setBlogModal({ open: true, mode: "edit", data: blog })}>
+                                  <Edit className="w-4 h-4 mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "blog", id: blog.id })}>
+                                  <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </Card>
@@ -508,28 +914,36 @@ const Dashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {courses.map((course) => (
-                      <TableRow key={course.id}>
-                        <TableCell className="font-medium">{course.title}</TableCell>
-                        <TableCell>{course.category}</TableCell>
-                        <TableCell>{course.duration}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setCourseModal({ open: true, mode: "edit", data: course })}>
-                                <Edit className="w-4 h-4 mr-2" /> Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "course", id: course.id })}>
-                                <Trash2 className="w-4 h-4 mr-2" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                    {courses.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                          No courses found. Click "Add Course" to create your first course.
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      courses.map((course) => (
+                        <TableRow key={course.id}>
+                          <TableCell className="font-medium">{course.title}</TableCell>
+                          <TableCell>{course.category}</TableCell>
+                          <TableCell>{course.duration}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setCourseModal({ open: true, mode: "edit", data: course })}>
+                                  <Edit className="w-4 h-4 mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "course", id: course.id })}>
+                                  <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </Card>
@@ -557,33 +971,41 @@ const Dashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sampleWorkshops.map((workshop) => (
-                      <TableRow key={workshop.id}>
-                        <TableCell className="font-medium">{workshop.title}</TableCell>
-                        <TableCell>{workshop.date}</TableCell>
-                        <TableCell>{workshop.registrations}</TableCell>
-                        <TableCell>
-                          <Badge variant={workshop.status === "open" ? "default" : workshop.status === "completed" ? "secondary" : "outline"}>
-                            {workshop.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setWorkshopModal({ open: true, mode: "edit", data: workshop })}>
-                                <Edit className="w-4 h-4 mr-2" /> Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "workshop", id: workshop.id })}>
-                                <Trash2 className="w-4 h-4 mr-2" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                    {workshops.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          No workshops found. Click "Add Workshop" to create your first workshop.
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      workshops.map((workshop) => (
+                        <TableRow key={workshop.id}>
+                          <TableCell className="font-medium">{workshop.title}</TableCell>
+                          <TableCell>{workshop.date}</TableCell>
+                          <TableCell>{workshop.registrations}</TableCell>
+                          <TableCell>
+                            <Badge variant={workshop.status === "open" ? "default" : workshop.status === "completed" ? "secondary" : "outline"}>
+                              {workshop.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setWorkshopModal({ open: true, mode: "edit", data: workshop })}>
+                                  <Edit className="w-4 h-4 mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "workshop", id: workshop.id })}>
+                                  <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </Card>
@@ -610,28 +1032,36 @@ const Dashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sampleCertificates.map((cert) => (
-                      <TableRow key={cert.id}>
-                        <TableCell className="font-medium">{cert.title}</TableCell>
-                        <TableCell>{cert.issuer}</TableCell>
-                        <TableCell>{cert.year}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setCertificateModal({ open: true, mode: "edit", data: cert })}>
-                                <Edit className="w-4 h-4 mr-2" /> Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "certificate", id: cert.id })}>
-                                <Trash2 className="w-4 h-4 mr-2" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                    {certificates.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                          No certificates found. Click "Add Certificate" to create your first certificate.
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      certificates.map((cert) => (
+                        <TableRow key={cert.id}>
+                          <TableCell className="font-medium">{cert.title}</TableCell>
+                          <TableCell>{cert.issuer}</TableCell>
+                          <TableCell>{cert.year}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setCertificateModal({ open: true, mode: "edit", data: cert })}>
+                                  <Edit className="w-4 h-4 mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "certificate", id: cert.id })}>
+                                  <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </Card>
@@ -658,28 +1088,36 @@ const Dashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sampleTestimonials.map((testimonial) => (
-                      <TableRow key={testimonial.id}>
-                        <TableCell className="font-medium">{testimonial.name}</TableCell>
-                        <TableCell>{testimonial.course}</TableCell>
-                        <TableCell>{"⭐".repeat(testimonial.rating)}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setTestimonialModal({ open: true, mode: "edit", data: testimonial })}>
-                                <Edit className="w-4 h-4 mr-2" /> Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "testimonial", id: testimonial.id })}>
-                                <Trash2 className="w-4 h-4 mr-2" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                    {testimonials.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                          No testimonials found. Click "Add Testimonial" to create your first testimonial.
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      testimonials.map((testimonial) => (
+                        <TableRow key={testimonial.id}>
+                          <TableCell className="font-medium">{testimonial.name}</TableCell>
+                          <TableCell>{testimonial.course}</TableCell>
+                          <TableCell>{"⭐".repeat(testimonial.rating)}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setTestimonialModal({ open: true, mode: "edit", data: testimonial })}>
+                                  <Edit className="w-4 h-4 mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "testimonial", id: testimonial.id })}>
+                                  <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </Card>
@@ -695,27 +1133,35 @@ const Dashboard = () => {
                   <Plus className="w-4 h-4 mr-2" /> Add Image
                 </Button>
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {sampleGallery.map((item) => (
-                  <Card key={item.id} className="border-border/50 overflow-hidden group">
-                    <div className="relative aspect-video bg-muted">
-                      <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <Button size="icon" variant="secondary" onClick={() => setGalleryModal({ open: true, mode: "edit", data: item })}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button size="icon" variant="destructive" onClick={() => setDeleteModal({ open: true, type: "gallery", id: item.id })}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+              {gallery.length === 0 ? (
+                <Card className="border-border/50">
+                  <CardContent className="py-12 text-center">
+                    <p className="text-muted-foreground">No gallery items found. Click "Add Image" to add your first gallery item.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {gallery.map((item) => (
+                    <Card key={item.id} className="border-border/50 overflow-hidden group">
+                      <div className="relative aspect-video bg-muted">
+                        <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <Button size="icon" variant="secondary" onClick={() => setGalleryModal({ open: true, mode: "edit", data: item })}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button size="icon" variant="destructive" onClick={() => setDeleteModal({ open: true, type: "gallery", id: item.id })}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                    <CardContent className="p-3">
-                      <p className="font-medium text-foreground text-sm">{item.title}</p>
-                      <p className="text-xs text-muted-foreground">{item.category}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      <CardContent className="p-3">
+                        <p className="font-medium text-foreground text-sm">{item.title}</p>
+                        <p className="text-xs text-muted-foreground">{item.category}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -739,28 +1185,36 @@ const Dashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sampleFaculty.map((faculty) => (
-                      <TableRow key={faculty.id}>
-                        <TableCell className="font-medium">{faculty.name}</TableCell>
-                        <TableCell>{faculty.specialization}</TableCell>
-                        <TableCell>{faculty.experience}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setFacultyModal({ open: true, mode: "edit", data: faculty })}>
-                                <Edit className="w-4 h-4 mr-2" /> Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "faculty", id: faculty.id })}>
-                                <Trash2 className="w-4 h-4 mr-2" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                    {faculty.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                          No faculty members found. Click "Add Faculty" to create your first faculty member.
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      faculty.map((facultyMember) => (
+                        <TableRow key={facultyMember.id}>
+                          <TableCell className="font-medium">{facultyMember.name}</TableCell>
+                          <TableCell>{facultyMember.specialization}</TableCell>
+                          <TableCell>{facultyMember.experience}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setFacultyModal({ open: true, mode: "edit", data: facultyMember })}>
+                                  <Edit className="w-4 h-4 mr-2" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteModal({ open: true, type: "faculty", id: facultyMember.id })}>
+                                  <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </Card>
@@ -943,48 +1397,102 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Workshop Title</Label>
-              <Input placeholder="Enter workshop title" defaultValue={workshopModal.data?.title} />
+              <Input 
+                placeholder="Enter workshop title" 
+                value={workshopForm.title}
+                onChange={(e) => setWorkshopForm({ ...workshopForm, title: e.target.value })}
+              />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Date</Label>
-                <Input type="date" defaultValue={workshopModal.data?.date} />
+                <Input 
+                  type="date" 
+                  value={workshopForm.date}
+                  onChange={(e) => setWorkshopForm({ ...workshopForm, date: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
-                <Label>Duration</Label>
-                <Input placeholder="e.g., 2 days" />
+                <Label>Status</Label>
+                <Select 
+                  value={workshopForm.status}
+                  onValueChange={(value: any) => setWorkshopForm({ ...workshopForm, status: value })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="upcoming">Upcoming</SelectItem>
+                    <SelectItem value="open">Registration Open</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Location</Label>
-                <Input placeholder="Venue or Online" />
+                <Input 
+                  placeholder="Venue or Online" 
+                  value={workshopForm.location}
+                  onChange={(e) => setWorkshopForm({ ...workshopForm, location: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
-                <Label>Max Seats</Label>
-                <Input type="number" placeholder="50" />
+                <Label>Max Participants</Label>
+                <Input 
+                  type="number" 
+                  placeholder="50" 
+                  value={workshopForm.max_participants || ''}
+                  onChange={(e) => setWorkshopForm({ ...workshopForm, max_participants: e.target.value ? parseInt(e.target.value) : undefined })}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Start Time</Label>
+                <Input 
+                  type="time" 
+                  value={workshopForm.start_time}
+                  onChange={(e) => setWorkshopForm({ ...workshopForm, start_time: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>End Time</Label>
+                <Input 
+                  type="time" 
+                  value={workshopForm.end_time}
+                  onChange={(e) => setWorkshopForm({ ...workshopForm, end_time: e.target.value })}
+                />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Status</Label>
-              <Select defaultValue={workshopModal.data?.status || "upcoming"}>
-                <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="upcoming">Upcoming</SelectItem>
-                  <SelectItem value="open">Registration Open</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Price</Label>
+              <Input 
+                type="number" 
+                placeholder="0.00" 
+                value={workshopForm.price || ''}
+                onChange={(e) => setWorkshopForm({ ...workshopForm, price: e.target.value ? parseFloat(e.target.value) : undefined })}
+              />
             </div>
-            <ImageUpload label="Workshop Image" placeholder="Enter image URL or upload" />
+            <ImageUpload 
+              label="Workshop Image" 
+              placeholder="Enter image URL or upload" 
+              value={workshopForm.image}
+              onChange={(url) => setWorkshopForm({ ...workshopForm, image: url })}
+            />
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea placeholder="Workshop description..." rows={3} />
+              <Textarea 
+                placeholder="Workshop description..." 
+                rows={3}
+                value={workshopForm.description}
+                onChange={(e) => setWorkshopForm({ ...workshopForm, description: e.target.value })}
+              />
             </div>
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setWorkshopModal({ open: false, mode: "add" })}>Cancel</Button>
-            <Button variant="hero" onClick={() => { handleSave("workshop"); setWorkshopModal({ open: false, mode: "add" }); }}>Save Workshop</Button>
+            <Button variant="hero" onClick={() => handleSave("workshop")}>Save Workshop</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -999,16 +1507,27 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Student Name</Label>
-              <Input placeholder="Full name" defaultValue={testimonialModal.data?.name} />
+              <Input 
+                placeholder="Full name" 
+                value={testimonialForm.name}
+                onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })}
+              />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Course</Label>
-                <Input placeholder="Course name" defaultValue={testimonialModal.data?.course} />
+                <Input 
+                  placeholder="Course name" 
+                  value={testimonialForm.course}
+                  onChange={(e) => setTestimonialForm({ ...testimonialForm, course: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Rating</Label>
-                <Select defaultValue={testimonialModal.data?.rating?.toString() || "5"}>
+                <Select 
+                  value={testimonialForm.rating.toString()}
+                  onValueChange={(value) => setTestimonialForm({ ...testimonialForm, rating: parseInt(value) })}
+                >
                   <SelectTrigger><SelectValue placeholder="Rating" /></SelectTrigger>
                   <SelectContent>
                     {[5, 4, 3, 2, 1].map(r => <SelectItem key={r} value={r.toString()}>{r} Stars</SelectItem>)}
@@ -1016,15 +1535,43 @@ const Dashboard = () => {
                 </Select>
               </div>
             </div>
-            <ImageUpload label="Student Photo" placeholder="Enter photo URL or upload" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Position</Label>
+                <Input 
+                  placeholder="Job title" 
+                  value={testimonialForm.position}
+                  onChange={(e) => setTestimonialForm({ ...testimonialForm, position: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Company</Label>
+                <Input 
+                  placeholder="Company name" 
+                  value={testimonialForm.company}
+                  onChange={(e) => setTestimonialForm({ ...testimonialForm, company: e.target.value })}
+                />
+              </div>
+            </div>
+            <ImageUpload 
+              label="Student Photo" 
+              placeholder="Enter photo URL or upload" 
+              value={testimonialForm.image}
+              onChange={(url) => setTestimonialForm({ ...testimonialForm, image: url })}
+            />
             <div className="space-y-2">
               <Label>Testimonial</Label>
-              <Textarea placeholder="What the student said..." rows={4} />
+              <Textarea 
+                placeholder="What the student said..." 
+                rows={4}
+                value={testimonialForm.testimonial}
+                onChange={(e) => setTestimonialForm({ ...testimonialForm, testimonial: e.target.value })}
+              />
             </div>
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setTestimonialModal({ open: false, mode: "add" })}>Cancel</Button>
-            <Button variant="hero" onClick={() => { handleSave("testimonial"); setTestimonialModal({ open: false, mode: "add" }); }}>Save</Button>
+            <Button variant="hero" onClick={() => handleSave("testimonial")}>Save</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1039,29 +1586,99 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Full Name</Label>
-              <Input placeholder="Dr. John Doe" defaultValue={facultyModal.data?.name} />
+              <Input 
+                placeholder="Dr. John Doe" 
+                value={facultyForm.name}
+                onChange={(e) => setFacultyForm({ ...facultyForm, name: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label>Specialization</Label>
-              <Input placeholder="e.g., Ethical Hacking" defaultValue={facultyModal.data?.specialization} />
+              <Input 
+                placeholder="e.g., Ethical Hacking" 
+                value={facultyForm.specialization}
+                onChange={(e) => setFacultyForm({ ...facultyForm, specialization: e.target.value })}
+              />
             </div>
-            <div className="space-y-2">
-              <Label>Experience</Label>
-              <Input placeholder="e.g., 10 years" defaultValue={facultyModal.data?.experience} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Experience</Label>
+                <Input 
+                  placeholder="e.g., 10 years" 
+                  value={facultyForm.experience}
+                  onChange={(e) => setFacultyForm({ ...facultyForm, experience: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Order</Label>
+                <Input 
+                  type="number" 
+                  placeholder="0" 
+                  value={facultyForm.order}
+                  onChange={(e) => setFacultyForm({ ...facultyForm, order: parseInt(e.target.value) || 0 })}
+                />
+              </div>
             </div>
-            <ImageUpload label="Faculty Photo" placeholder="Enter photo URL or upload" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input 
+                  type="email" 
+                  placeholder="email@example.com" 
+                  value={facultyForm.email}
+                  onChange={(e) => setFacultyForm({ ...facultyForm, email: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Phone</Label>
+                <Input 
+                  placeholder="+1234567890" 
+                  value={facultyForm.phone}
+                  onChange={(e) => setFacultyForm({ ...facultyForm, phone: e.target.value })}
+                />
+              </div>
+            </div>
+            <ImageUpload 
+              label="Faculty Photo" 
+              placeholder="Enter photo URL or upload" 
+              value={facultyForm.image}
+              onChange={(url) => setFacultyForm({ ...facultyForm, image: url })}
+            />
             <div className="space-y-2">
               <Label>Bio</Label>
-              <Textarea placeholder="Brief biography..." rows={3} />
+              <Textarea 
+                placeholder="Brief biography..." 
+                rows={3}
+                value={facultyForm.bio}
+                onChange={(e) => setFacultyForm({ ...facultyForm, bio: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
-              <Label>Certifications (comma separated)</Label>
-              <Input placeholder="CEH, CISSP, OSCP" />
+              <Label>Qualifications (comma separated)</Label>
+              <Input 
+                placeholder="CEH, CISSP, OSCP" 
+                value={Array.isArray(facultyForm.qualifications) ? facultyForm.qualifications.join(', ') : (facultyForm.qualifications || '')}
+                onChange={(e) => {
+                  const quals = e.target.value.split(',').map(q => q.trim()).filter(q => q !== '');
+                  setFacultyForm({ ...facultyForm, qualifications: quals });
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Expertise Areas (comma separated, optional)</Label>
+              <Input 
+                placeholder="Network Security, Penetration Testing" 
+                value={Array.isArray(facultyForm.expertise_areas) ? facultyForm.expertise_areas.join(', ') : (facultyForm.expertise_areas || '')}
+                onChange={(e) => {
+                  const areas = e.target.value.split(',').map(a => a.trim()).filter(a => a !== '');
+                  setFacultyForm({ ...facultyForm, expertise_areas: areas });
+                }}
+              />
             </div>
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setFacultyModal({ open: false, mode: "add" })}>Cancel</Button>
-            <Button variant="hero" onClick={() => { handleSave("faculty"); setFacultyModal({ open: false, mode: "add" }); }}>Save</Button>
+            <Button variant="hero" onClick={() => handleSave("faculty")}>Save</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1076,25 +1693,84 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Title</Label>
-              <Input placeholder="Award/Certificate name" defaultValue={certificateModal.data?.title} />
+              <Input 
+                placeholder="Award/Certificate name" 
+                value={certificateForm.title}
+                onChange={(e) => setCertificateForm({ ...certificateForm, title: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label>Issuing Organization</Label>
-              <Input placeholder="e.g., ISO, NASSCOM" defaultValue={certificateModal.data?.issuer} />
+              <Input 
+                placeholder="e.g., ISO, NASSCOM" 
+                value={certificateForm.issuer}
+                onChange={(e) => setCertificateForm({ ...certificateForm, issuer: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Year</Label>
+                <Input 
+                  placeholder="2024" 
+                  value={certificateForm.year}
+                  onChange={(e) => setCertificateForm({ ...certificateForm, year: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Order</Label>
+                <Input 
+                  type="number" 
+                  placeholder="0" 
+                  value={certificateForm.order}
+                  onChange={(e) => setCertificateForm({ ...certificateForm, order: parseInt(e.target.value) || 0 })}
+                />
+              </div>
             </div>
             <div className="space-y-2">
-              <Label>Year</Label>
-              <Input placeholder="2024" defaultValue={certificateModal.data?.year} />
+              <Label>Certificate Number</Label>
+              <Input 
+                placeholder="Optional" 
+                value={certificateForm.certificate_number}
+                onChange={(e) => setCertificateForm({ ...certificateForm, certificate_number: e.target.value })}
+              />
             </div>
-            <ImageUpload label="Certificate Image" placeholder="Enter image URL or upload" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Issue Date</Label>
+                <Input 
+                  type="date" 
+                  value={certificateForm.issue_date}
+                  onChange={(e) => setCertificateForm({ ...certificateForm, issue_date: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Expiry Date</Label>
+                <Input 
+                  type="date" 
+                  value={certificateForm.expiry_date}
+                  onChange={(e) => setCertificateForm({ ...certificateForm, expiry_date: e.target.value })}
+                />
+              </div>
+            </div>
+            <ImageUpload 
+              label="Certificate Image" 
+              placeholder="Enter image URL or upload" 
+              value={certificateForm.image}
+              onChange={(url) => setCertificateForm({ ...certificateForm, image: url })}
+            />
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea placeholder="Details about this recognition..." rows={3} />
+              <Textarea 
+                placeholder="Details about this recognition..." 
+                rows={3}
+                value={certificateForm.description}
+                onChange={(e) => setCertificateForm({ ...certificateForm, description: e.target.value })}
+              />
             </div>
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setCertificateModal({ open: false, mode: "add" })}>Cancel</Button>
-            <Button variant="hero" onClick={() => { handleSave("certificate"); setCertificateModal({ open: false, mode: "add" }); }}>Save</Button>
+            <Button variant="hero" onClick={() => handleSave("certificate")}>Save</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1109,29 +1785,57 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Title</Label>
-              <Input placeholder="Image title" defaultValue={galleryModal.data?.title} />
+              <Input 
+                placeholder="Image title" 
+                value={galleryForm.title}
+                onChange={(e) => setGalleryForm({ ...galleryForm, title: e.target.value })}
+              />
             </div>
-            <div className="space-y-2">
-              <Label>Category</Label>
-              <Select defaultValue={galleryModal.data?.category}>
-                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Facilities">Facilities</SelectItem>
-                  <SelectItem value="Events">Events</SelectItem>
-                  <SelectItem value="Workshops">Workshops</SelectItem>
-                  <SelectItem value="Students">Students</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select 
+                  value={galleryForm.category}
+                  onValueChange={(value) => setGalleryForm({ ...galleryForm, category: value })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Facilities">Facilities</SelectItem>
+                    <SelectItem value="Events">Events</SelectItem>
+                    <SelectItem value="Workshops">Workshops</SelectItem>
+                    <SelectItem value="Students">Students</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Order</Label>
+                <Input 
+                  type="number" 
+                  placeholder="0" 
+                  value={galleryForm.order}
+                  onChange={(e) => setGalleryForm({ ...galleryForm, order: parseInt(e.target.value) || 0 })}
+                />
+              </div>
             </div>
-            <ImageUpload label="Gallery Image" placeholder="Enter image URL or upload" value={galleryModal.data?.image} />
+            <ImageUpload 
+              label="Gallery Image" 
+              placeholder="Enter image URL or upload" 
+              value={galleryForm.image}
+              onChange={(url) => setGalleryForm({ ...galleryForm, image: url })}
+            />
             <div className="space-y-2">
-              <Label>Alt Text</Label>
-              <Input placeholder="Description for accessibility" />
+              <Label>Description</Label>
+              <Textarea 
+                placeholder="Description for accessibility" 
+                rows={3}
+                value={galleryForm.description}
+                onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })}
+              />
             </div>
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setGalleryModal({ open: false, mode: "add" })}>Cancel</Button>
-            <Button variant="hero" onClick={() => { handleSave("image"); setGalleryModal({ open: false, mode: "add" }); }}>Save</Button>
+            <Button variant="hero" onClick={() => handleSave("gallery")}>Save</Button>
           </div>
         </DialogContent>
       </Dialog>

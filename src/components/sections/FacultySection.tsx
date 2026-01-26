@@ -1,37 +1,8 @@
 import { motion } from "framer-motion";
 import { Award, Code, Shield, Users, Server, Brain, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const faculty = [
-  {
-    name: "Rajesh Kumar",
-    role: "Penetration Testing Lead",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop",
-    expertise: ["OSCP", "CEH", "GPEN"],
-    experience: "12+ Years",
-  },
-  {
-    name: "Priya Sharma",
-    role: "Network Security Architect",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop",
-    expertise: ["CCNP", "AWS Security", "Azure"],
-    experience: "10+ Years",
-  },
-  {
-    name: "Amit Verma",
-    role: "SOC Manager & Trainer",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop",
-    expertise: ["GCIH", "GCIA", "SANS"],
-    experience: "15+ Years",
-  },
-  {
-    name: "Dr. Vikram Singh",
-    role: "Digital Forensics Expert",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
-    expertise: ["EnCE", "GCFE", "CHFI"],
-    experience: "18+ Years",
-  },
-];
+import { useEffect, useState } from "react";
+import { facultyService, Faculty } from "@/services/facultyService";
 
 const labFeatures = [
   {
@@ -57,6 +28,21 @@ const labFeatures = [
 ];
 
 export const FacultySection = () => {
+  const [faculty, setFaculty] = useState<Faculty[]>([]);
+
+  useEffect(() => {
+    const fetchFaculty = async () => {
+      try {
+        const data = await facultyService.getAll();
+        // Take first 4 active faculty
+        setFaculty(data.filter(f => f.is_active).slice(0, 4));
+      } catch (error) {
+        console.error("Failed to fetch faculty", error);
+      }
+    };
+    fetchFaculty();
+  }, []);
+
   return (
     <section id="faculty" className="py-20 lg:py-32 relative overflow-hidden bg-muted/30">
       {/* Background Elements */}
@@ -93,7 +79,7 @@ export const FacultySection = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
           {faculty.map((member, index) => (
             <motion.div
-              key={member.name}
+              key={member.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -101,37 +87,50 @@ export const FacultySection = () => {
               className="group bg-card rounded-2xl p-6 border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-500"
             >
               <div className="relative mb-5">
-                <div className="w-20 h-20 mx-auto rounded-xl overflow-hidden">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
+                <div className="w-20 h-20 mx-auto rounded-xl overflow-hidden bg-primary/10 flex items-center justify-center">
+                  {member.image ? (
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <span className="text-primary font-semibold text-2xl">
+                      {member.name.charAt(0)}
+                    </span>
+                  )}
                 </div>
-                <motion.div
-                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full whitespace-nowrap"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
-                >
-                  {member.experience}
-                </motion.div>
+                {member.experience && (
+                  <motion.div
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full whitespace-nowrap"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3 + index * 0.1 }}
+                  >
+                    {member.experience}
+                  </motion.div>
+                )}
               </div>
               
               <div className="text-center">
                 <h3 className="font-semibold text-foreground mb-1">{member.name}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{member.role}</p>
-                <div className="flex flex-wrap justify-center gap-1.5">
-                  {member.expertise.map((cert) => (
-                    <span
-                      key={cert}
-                      className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded"
-                    >
-                      {cert}
-                    </span>
-                  ))}
-                </div>
+                <p className="text-sm text-muted-foreground mb-4">{member.specialization}</p>
+                {member.experience && (
+                  <p className="text-xs text-muted-foreground mb-4">{member.experience}</p>
+                )}
+                {(member.qualifications && member.qualifications.length > 0) && (
+                  <div className="flex flex-wrap justify-center gap-1.5">
+                    {member.qualifications.slice(0, 3).map((cert, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded"
+                      >
+                        {cert}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
