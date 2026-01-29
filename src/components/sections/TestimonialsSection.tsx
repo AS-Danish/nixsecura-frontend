@@ -61,7 +61,7 @@ export const TestimonialsSection = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.5 }}
-                className="bg-card rounded-3xl p-8 lg:p-12 border border-border/50 shadow-soft"
+                className="bg-card rounded-3xl p-8 lg:p-12 border border-border/50 shadow-soft overflow-hidden"
               >
                 {/* Quote Icon */}
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-8">
@@ -69,7 +69,7 @@ export const TestimonialsSection = () => {
                 </div>
 
                 {/* Content */}
-                <p className="text-xl lg:text-2xl text-foreground leading-relaxed mb-8 font-light">
+                <p className="text-xl lg:text-2xl text-foreground leading-relaxed mb-8 font-light break-words">
                   "{testimonials[currentIndex]?.testimonial || testimonials[currentIndex]?.course || 'Great experience!'}"
                 </p>
 
@@ -79,22 +79,22 @@ export const TestimonialsSection = () => {
                     <img
                       src={testimonials[currentIndex].image || '/placeholder.svg'}
                       alt={testimonials[currentIndex].name}
-                      className="w-14 h-14 rounded-full object-cover ring-2 ring-primary/20"
+                      className="w-14 h-14 rounded-full object-cover ring-2 ring-primary/20 flex-shrink-0"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
                       }}
                     />
                   ) : (
-                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center ring-2 ring-primary/20">
+                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center ring-2 ring-primary/20 flex-shrink-0">
                       <span className="text-primary font-semibold text-lg">
                         {testimonials[currentIndex]?.name?.charAt(0) || 'U'}
                       </span>
                     </div>
                   )}
-                  <div>
-                    <h4 className="font-semibold text-foreground">{testimonials[currentIndex]?.name}</h4>
-                    <p className="text-muted-foreground text-sm">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-semibold text-foreground truncate">{testimonials[currentIndex]?.name}</h4>
+                    <p className="text-muted-foreground text-sm break-words">
                       {testimonials[currentIndex]?.position && testimonials[currentIndex]?.company
                         ? `${testimonials[currentIndex].position} at ${testimonials[currentIndex].company}`
                         : testimonials[currentIndex]?.course || 'Student'}
