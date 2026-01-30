@@ -169,20 +169,24 @@ const AllWorkshops = () => {
                           <Calendar className="w-4 h-4 text-primary" />
                           {workshop.date}
                         </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Clock className="w-4 h-4 text-primary" />
-                          {workshop.start_time || workshop.end_time
-                            ? `${workshop.start_time || ''}${workshop.start_time && workshop.end_time ? ' - ' : ''}${workshop.end_time || ''}`
-                            : 'Time TBA'}
-                        </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <MapPin className="w-4 h-4 text-primary" />
-                          {workshop.location}
-                        </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Users className="w-4 h-4 text-primary" />
-                          {workshop.max_participants ? `${workshop.max_participants} Seats` : 'Seats TBA'}
-                        </div>
+                        {(workshop.start_time || workshop.end_time) && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Clock className="w-4 h-4 text-primary" />
+                            {`${workshop.start_time || ''}${workshop.start_time && workshop.end_time ? ' - ' : ''}${workshop.end_time || ''}`}
+                          </div>
+                        )}
+                        {workshop.location && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <MapPin className="w-4 h-4 text-primary" />
+                            {workshop.location}
+                          </div>
+                        )}
+                        {typeof workshop.max_participants === 'number' && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Users className="w-4 h-4 text-primary" />
+                            {`${workshop.max_participants} Seats`}
+                          </div>
+                        )}
                       </div>
 
                       {/* Instructors */}
@@ -206,21 +210,12 @@ const AllWorkshops = () => {
 
                       {/* CTA */}
                       <div className="flex gap-3">
-                        {workshop.status === "open" ? (
-                          <Link to={`/workshop/${workshop.id}/register`}>
-                            <Button variant="hero" className="group">
-                              Register Now
-                              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                          </Link>
-                        ) : (
-                          <Link to={`/workshop/${workshop.id}`}>
-                            <Button variant="hero-ghost" className="group">
-                              View Details
-                              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                          </Link>
-                        )}
+                        <Link to={`/workshop/${workshop.id}`}>
+                          <Button variant="hero-ghost" className="group">
+                            View Details
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </div>
