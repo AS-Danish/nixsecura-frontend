@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { courseService } from "@/services/courseService";
+import { useToast } from "@/hooks/use-toast";
 
 const contactInfo = [
   {
@@ -27,21 +29,78 @@ const contactInfo = [
 ];
 
 export const ContactSection = () => {
+  const { toast } = useToast();
   const [formState, setFormState] = useState({
     name: "",
     email: "",
     phone: "",
-    course: "",
+    course: "", // Stores course ID
     message: "",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [courses, setCourses] = useState<{ id: number; title: string }[]>([]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const data = await courseService.getList();
+        setCourses(data);
+      } catch (error) {
+        console.error("Failed to fetch courses", error);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate form submission
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 3000);
-    setFormState({ name: "", email: "", phone: "", course: "", message: "" });
+    setIsSubmitting(true);
+
+    try {
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfBJfwzlbvR5sQGalTHi8gmMgELvfHcgBAzBaIbFzFpBesit3TqS721m2erZMMMB_ULA/exec";
+
+      // Find course name if selected
+      const selectedCourse = courses.find(c => c.id.toString() === formState.course);
+      const courseName = selectedCourse ? selectedCourse.title : "";
+
+      const payload = {
+        timestamp: new Date().toISOString(),
+        fullName: formState.name,
+        email: formState.email,
+        contactNumber: formState.phone,
+        courseName: courseName,
+        message: formState.message,
+        source: "Contact Form",
+        type: "Contact Us"
+      };
+
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      setIsSubmitted(true);
+      toast({
+        title: "Message Sent",
+        description: "We've received your message and will get back to you soon.",
+      });
+      setTimeout(() => setIsSubmitted(false), 3000);
+      setFormState({ name: "", email: "", phone: "", course: "", message: "" });
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -79,7 +138,7 @@ export const ContactSection = () => {
           >
             <div className="bg-card rounded-3xl p-8 lg:p-10 border border-border/50 shadow-soft">
               <h3 className="text-2xl font-semibold text-foreground mb-6">Get in Touch</h3>
-              
+
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
@@ -126,11 +185,9 @@ export const ContactSection = () => {
                       className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground"
                     >
                       <option value="">Select a course</option>
-                      <option value="ethical-hacking">Ethical Hacking</option>
-                      <option value="network-security">Network Security</option>
-                      <option value="cyber-analyst">Cyber Security Analyst</option>
-                      <option value="cloud-security">Cloud Security</option>
-                      <option value="forensics">Digital Forensics</option>
+                      {courses.map(course => (
+                        <option key={course.id} value={course.id}>{course.title}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -146,8 +203,13 @@ export const ContactSection = () => {
                   />
                 </div>
 
-                <Button type="submit" variant="hero" size="lg" className="w-full group">
-                  {isSubmitted ? (
+                <Button type="submit" variant="hero" size="lg" className="w-full group" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Sending...
+                    </>
+                  ) : isSubmitted ? (
                     <>
                       <CheckCircle className="w-5 h-5" />
                       Message Sent!

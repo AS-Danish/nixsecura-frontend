@@ -61,7 +61,7 @@ export const Header = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Button variant="hero" size="sm">
+            <Button variant="hero" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
               Get Started
             </Button>
           </motion.div>
@@ -100,7 +100,10 @@ export const Header = () => {
                 </a>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Button variant="hero" size="sm">
+                <Button variant="hero" size="sm" onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+                }}>
                   Get Started
                 </Button>
               </div>

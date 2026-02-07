@@ -18,17 +18,45 @@ export const FloatingCallback = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    toast({
-      title: "Callback Requested!",
-      description: "Our counselor will call you within the selected time slot.",
-    });
-    
-    setFormData({ name: "", phone: "", preferredTime: "morning" });
-    setIsSubmitting(false);
-    setIsOpen(false);
+
+    try {
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfBJfwzlbvR5sQGalTHi8gmMgELvfHcgBAzBaIbFzFpBesit3TqS721m2erZMMMB_ULA/exec";
+
+      const payload = {
+        timestamp: new Date().toISOString(),
+        fullName: formData.name,
+        contactNumber: formData.phone,
+        message: `Preferred Time: ${formData.preferredTime}`, // Mapping to message or specific field if available, reusing message for now
+        source: "Floating Callback",
+        type: "Callback Request"
+      };
+
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      toast({
+        title: "Callback Requested!",
+        description: "Our counselor will call you within the selected time slot.",
+      });
+
+      setFormData({ name: "", phone: "", preferredTime: "morning" });
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to request callback. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -90,7 +118,7 @@ export const FloatingCallback = () => {
                 className="w-full px-4 py-3 bg-background border border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
               />
             </div>
-            
+
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">
                 Phone Number
@@ -104,7 +132,7 @@ export const FloatingCallback = () => {
                 className="w-full px-4 py-3 bg-background border border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
               />
             </div>
-            
+
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">
                 Preferred Call Time
