@@ -52,11 +52,11 @@ export const Footer = () => {
                 <Shield className="w-6 h-6 text-primary-foreground" />
               </div>
               <span className="text-xl font-bold">
-                Cyber<span className="text-primary">Shield</span>
+                Nixsecura<span className="text-primary">Institute Everywhere</span>
               </span>
             </a>
             <p className="text-background/70 mb-6 leading-relaxed">
-              Empowering the next generation of cyber security professionals with 
+              Empowering the next generation of cyber security professionals with
               industry-aligned education and hands-on training.
             </p>
             {/* Social Links */}
@@ -102,19 +102,6 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Resources</h4>
-            <ul className="space-y-3">
-              {footerLinks.resources.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-background/70 hover:text-primary transition-colors text-sm">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
@@ -133,7 +120,7 @@ export const Footer = () => {
       <div className="border-t border-background/10">
         <div className="container mx-auto px-4 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm text-background/60">
-            <p>© 2024 CyberShield Institute. All rights reserved.</p>
+            <p>© 2024 Nixsecura Institute Everywhere. All rights reserved.</p>
             <p>Designed with 🔐 for Cyber Security Excellence</p>
           </div>
         </div>

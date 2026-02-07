@@ -1530,12 +1530,23 @@ const Dashboard = () => {
               </div>
               <div className="space-y-2">
                 <Label>Max Participants</Label>
-                <Input
-                  type="number"
-                  placeholder="50"
-                  value={workshopForm.max_participants || ''}
-                  onChange={(e) => setWorkshopForm({ ...workshopForm, max_participants: e.target.value ? parseInt(e.target.value) : undefined })}
-                />
+                <div className="space-y-1">
+                  <Input
+                    type="number"
+                    placeholder="Enter number (Leave empty for Unlimited)"
+                    value={workshopForm.max_participants === undefined || workshopForm.max_participants === null ? '' : workshopForm.max_participants}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setWorkshopForm({
+                        ...workshopForm,
+                        max_participants: val === '' ? undefined : parseInt(val)
+                      });
+                    }}
+                  />
+                  <p className="text-[0.8rem] text-muted-foreground">
+                    Leave empty for unlimited seats
+                  </p>
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

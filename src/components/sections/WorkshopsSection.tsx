@@ -12,11 +12,9 @@ export const WorkshopsSection = () => {
     const fetchWorkshops = async () => {
       try {
         const data = await workshopService.getAll();
-        // Filter for upcoming/open workshops and take first 3
-        const upcoming = data
-          .filter(w => w.status === "upcoming" || w.status === "open")
-          .slice(0, 3);
-        setWorkshops(upcoming);
+        // Take latest 4 workshops regardless of status
+        const latest = data.slice(0, 4);
+        setWorkshops(latest);
       } catch (error) {
         console.error("Failed to fetch workshops", error);
       }
@@ -80,7 +78,7 @@ export const WorkshopsSection = () => {
                       {workshop.description}
                     </p>
                   )}
-                  
+
                   {/* Meta Info */}
                   <div className="flex flex-wrap gap-4 text-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -99,12 +97,14 @@ export const WorkshopsSection = () => {
                         {workshop.location}
                       </div>
                     )}
-                    {workshop.max_participants && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Users className="w-4 h-4 text-primary" />
-                        {workshop.registrations}/{workshop.max_participants} Seats
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Users className="w-4 h-4 text-primary" />
+                      {workshop.max_participants && workshop.max_participants > 0 ? (
+                        <span>{workshop.max_participants} Seats</span>
+                      ) : (
+                        <span>Unlimited Seats</span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
