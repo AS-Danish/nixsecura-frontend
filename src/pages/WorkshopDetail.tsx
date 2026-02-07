@@ -96,7 +96,7 @@ const WorkshopDetail = () => {
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
                 {workshop.title}
               </h1>
-              <p className="text-lg text-muted-foreground mb-6">
+              <p className="text-lg text-muted-foreground mb-6 whitespace-pre-line">
                 {workshop.description}
               </p>
 

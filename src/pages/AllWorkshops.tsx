@@ -159,7 +159,7 @@ const AllWorkshops = () => {
                       <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3">
                         {workshop.title}
                       </h3>
-                      <p className="text-muted-foreground mb-4">
+                      <p className="text-muted-foreground mb-4 whitespace-pre-line">
                         {workshop.description}
                       </p>
 
