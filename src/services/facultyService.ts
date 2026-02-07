@@ -5,13 +5,9 @@ export interface Faculty {
   id: string;
   name: string;
   specialization: string;
-  bio?: string;
   experience?: string;
   image?: string;
-  email?: string;
-  phone?: string;
   qualifications?: string[];
-  expertise_areas?: string[];
   order?: number;
   is_active?: boolean;
 }
@@ -19,13 +15,9 @@ export interface Faculty {
 export interface FacultyInput {
   name: string;
   specialization: string;
-  bio?: string;
   experience?: string;
   image?: string;
-  email?: string;
-  phone?: string;
   qualifications?: string[];
-  expertise_areas?: string[];
   order?: number;
   is_active?: boolean;
 }
@@ -35,13 +27,9 @@ const mapToFaculty = (data: any): Faculty => {
     id: data.id.toString(),
     name: data.name,
     specialization: data.specialization,
-    bio: data.bio || '',
     experience: data.experience || '',
     image: normalizeImageUrl(data.image),
-    email: data.email || '',
-    phone: data.phone || '',
     qualifications: Array.isArray(data.qualifications) ? data.qualifications : [],
-    expertise_areas: Array.isArray(data.expertise_areas) ? data.expertise_areas : [],
     order: data.order || 0,
     is_active: data.is_active !== undefined ? data.is_active : true,
   };

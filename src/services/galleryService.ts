@@ -6,7 +6,6 @@ export interface Gallery {
   title: string;
   category: string;
   image: string;
-  description?: string;
   order?: number;
   is_featured?: boolean;
 }
@@ -15,7 +14,6 @@ export interface GalleryInput {
   title: string;
   category: string;
   image: string;
-  description?: string;
   order?: number;
   is_featured?: boolean;
 }
@@ -26,7 +24,6 @@ const mapToGallery = (data: any): Gallery => {
     title: data.title,
     category: data.category,
     image: normalizeImageUrl(data.image),
-    description: data.description || '',
     order: data.order || 0,
     is_featured: data.is_featured || false,
   };

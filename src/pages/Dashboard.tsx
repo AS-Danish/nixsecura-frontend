@@ -217,9 +217,7 @@ const Dashboard = () => {
     location: "",
     max_participants: undefined,
     registrations: 0,
-    status: "upcoming",
-    price: undefined,
-    instructors: []
+    status: "upcoming"
   });
 
   // Testimonial Form State
@@ -227,7 +225,6 @@ const Dashboard = () => {
     name: "",
     course: "",
     testimonial: "",
-    rating: 5,
     image: "",
     position: "",
     company: "",
@@ -238,13 +235,9 @@ const Dashboard = () => {
   const [facultyForm, setFacultyForm] = useState<FacultyInput>({
     name: "",
     specialization: "",
-    bio: "",
     experience: "",
     image: "",
-    email: "",
-    phone: "",
     qualifications: [],
-    expertise_areas: [],
     order: 0,
     is_active: true
   });
@@ -254,13 +247,7 @@ const Dashboard = () => {
     title: "",
     issuer: "",
     year: new Date().getFullYear().toString(),
-    image: "",
-    description: "",
-    certificate_number: "",
-    issue_date: "",
-    expiry_date: "",
-    order: 0,
-    is_featured: false
+    order: 0
   });
 
   // Gallery Form State
@@ -268,7 +255,6 @@ const Dashboard = () => {
     title: "",
     category: "Facilities",
     image: "",
-    description: "",
     order: 0,
     is_featured: false
   });
@@ -363,9 +349,7 @@ const Dashboard = () => {
         location: workshopModal.data.location || "",
         max_participants: workshopModal.data.max_participants,
         registrations: workshopModal.data.registrations || 0,
-        status: workshopModal.data.status || "upcoming",
-        price: workshopModal.data.price,
-        instructors: workshopModal.data.instructors || []
+        status: workshopModal.data.status || "upcoming"
       });
     } else if (workshopModal.open && workshopModal.mode === "add") {
       setWorkshopForm({
@@ -378,9 +362,7 @@ const Dashboard = () => {
         location: "",
         max_participants: undefined,
         registrations: 0,
-        status: "upcoming",
-        price: undefined,
-        instructors: []
+        status: "upcoming"
       });
     }
   }, [workshopModal.open, workshopModal.mode, workshopModal.data]);
@@ -391,7 +373,6 @@ const Dashboard = () => {
         name: testimonialModal.data.name || "",
         course: testimonialModal.data.course || "",
         testimonial: testimonialModal.data.testimonial || "",
-        rating: testimonialModal.data.rating || 5,
         image: testimonialModal.data.image || "",
         position: testimonialModal.data.position || "",
         company: testimonialModal.data.company || "",
@@ -402,7 +383,6 @@ const Dashboard = () => {
         name: "",
         course: "",
         testimonial: "",
-        rating: 5,
         image: "",
         position: "",
         company: "",
@@ -416,13 +396,9 @@ const Dashboard = () => {
       setFacultyForm({
         name: facultyModal.data.name || "",
         specialization: facultyModal.data.specialization || "",
-        bio: facultyModal.data.bio || "",
         experience: facultyModal.data.experience || "",
         image: facultyModal.data.image || "",
-        email: facultyModal.data.email || "",
-        phone: facultyModal.data.phone || "",
         qualifications: facultyModal.data.qualifications || [],
-        expertise_areas: facultyModal.data.expertise_areas || [],
         order: facultyModal.data.order || 0,
         is_active: facultyModal.data.is_active !== undefined ? facultyModal.data.is_active : true
       });
@@ -430,13 +406,9 @@ const Dashboard = () => {
       setFacultyForm({
         name: "",
         specialization: "",
-        bio: "",
         experience: "",
         image: "",
-        email: "",
-        phone: "",
         qualifications: [],
-        expertise_areas: [],
         order: 0,
         is_active: true
       });
@@ -449,26 +421,14 @@ const Dashboard = () => {
         title: certificateModal.data.title || "",
         issuer: certificateModal.data.issuer || "",
         year: certificateModal.data.year || new Date().getFullYear().toString(),
-        image: certificateModal.data.image || "",
-        description: certificateModal.data.description || "",
-        certificate_number: certificateModal.data.certificate_number || "",
-        issue_date: certificateModal.data.issue_date || "",
-        expiry_date: certificateModal.data.expiry_date || "",
-        order: certificateModal.data.order || 0,
-        is_featured: certificateModal.data.is_featured || false
+        order: certificateModal.data.order || 0
       });
     } else if (certificateModal.open && certificateModal.mode === "add") {
       setCertificateForm({
         title: "",
         issuer: "",
         year: new Date().getFullYear().toString(),
-        image: "",
-        description: "",
-        certificate_number: "",
-        issue_date: "",
-        expiry_date: "",
-        order: 0,
-        is_featured: false
+        order: 0
       });
     }
   }, [certificateModal.open, certificateModal.mode, certificateModal.data]);
@@ -479,7 +439,6 @@ const Dashboard = () => {
         title: galleryModal.data.title || "",
         category: galleryModal.data.category || "Facilities",
         image: galleryModal.data.image || "",
-        description: galleryModal.data.description || "",
         order: galleryModal.data.order || 0,
         is_featured: galleryModal.data.is_featured || false
       });
@@ -488,7 +447,6 @@ const Dashboard = () => {
         title: "",
         category: "Facilities",
         image: "",
-        description: "",
         order: 0,
         is_featured: false
       });
@@ -683,10 +641,8 @@ const Dashboard = () => {
           image: workshopForm.image?.trim() || undefined,
           start_time: workshopForm.start_time?.trim() || undefined,
           end_time: workshopForm.end_time?.trim() || undefined,
-          instructors: Array.isArray(workshopForm.instructors) ? workshopForm.instructors : [],
           max_participants: workshopForm.max_participants || undefined,
           registrations: workshopForm.registrations || 0,
-          price: workshopForm.price || undefined,
         };
 
         if (workshopModal.mode === "add") {
@@ -705,15 +661,11 @@ const Dashboard = () => {
           toast({ title: "Validation Error", description: "Name is required.", variant: "destructive" });
           return;
         }
-        if (!testimonialForm.rating || testimonialForm.rating < 1 || testimonialForm.rating > 5) {
-          toast({ title: "Validation Error", description: "Rating must be between 1 and 5.", variant: "destructive" });
-          return;
-        }
+
 
         // Clean and prepare testimonial data
         const cleanTestimonialData: TestimonialInput = {
           name: testimonialForm.name.trim(),
-          rating: testimonialForm.rating,
           course: testimonialForm.course?.trim() || undefined,
           testimonial: testimonialForm.testimonial?.trim() || undefined,
           position: testimonialForm.position?.trim() || undefined,
@@ -748,10 +700,6 @@ const Dashboard = () => {
           name: facultyForm.name.trim(),
           specialization: facultyForm.specialization.trim(),
           qualifications: Array.isArray(facultyForm.qualifications) ? facultyForm.qualifications.filter(q => q.trim() !== '') : [],
-          expertise_areas: Array.isArray(facultyForm.expertise_areas) ? facultyForm.expertise_areas.filter(e => e.trim() !== '') : [],
-          email: facultyForm.email?.trim() || undefined,
-          phone: facultyForm.phone?.trim() || undefined,
-          bio: facultyForm.bio?.trim() || undefined,
           experience: facultyForm.experience?.trim() || undefined,
           image: facultyForm.image?.trim() || undefined,
           order: facultyForm.order || 0,
@@ -788,13 +736,7 @@ const Dashboard = () => {
           title: certificateForm.title.trim(),
           issuer: certificateForm.issuer.trim(),
           year: certificateForm.year.trim(),
-          description: certificateForm.description?.trim() || undefined,
-          certificate_number: certificateForm.certificate_number?.trim() || undefined,
-          image: certificateForm.image?.trim() || undefined,
-          issue_date: certificateForm.issue_date || undefined,
-          expiry_date: certificateForm.expiry_date || undefined,
           order: certificateForm.order || 0,
-          is_featured: certificateForm.is_featured || false,
         };
 
         if (certificateModal.mode === "add") {
@@ -827,7 +769,6 @@ const Dashboard = () => {
           title: galleryForm.title.trim(),
           category: galleryForm.category.trim(),
           image: galleryForm.image.trim(),
-          description: galleryForm.description?.trim() || undefined,
           order: galleryForm.order || 0,
           is_featured: galleryForm.is_featured || false,
         };
@@ -890,8 +831,8 @@ const Dashboard = () => {
                 if (window.innerWidth < 1024) setSidebarOpen(false);
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === item.id
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
             >
               <item.icon className="w-5 h-5" />
@@ -1204,7 +1145,6 @@ const Dashboard = () => {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Course</TableHead>
-                      <TableHead>Rating</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1220,7 +1160,6 @@ const Dashboard = () => {
                         <TableRow key={testimonial.id}>
                           <TableCell className="font-medium">{testimonial.name}</TableCell>
                           <TableCell>{testimonial.course}</TableCell>
-                          <TableCell>{"⭐".repeat(testimonial.rating)}</TableCell>
                           <TableCell className="text-right">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
@@ -1586,15 +1525,6 @@ const Dashboard = () => {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Price</Label>
-              <Input
-                type="number"
-                placeholder="0.00"
-                value={workshopForm.price || ''}
-                onChange={(e) => setWorkshopForm({ ...workshopForm, price: e.target.value ? parseFloat(e.target.value) : undefined })}
-              />
-            </div>
             <ImageUpload
               label="Workshop Image"
               placeholder="Enter image URL or upload"
@@ -1642,18 +1572,6 @@ const Dashboard = () => {
                   value={testimonialForm.course}
                   onChange={(e) => setTestimonialForm({ ...testimonialForm, course: e.target.value })}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label>Rating</Label>
-                <Select
-                  value={testimonialForm.rating.toString()}
-                  onValueChange={(value) => setTestimonialForm({ ...testimonialForm, rating: parseInt(value) })}
-                >
-                  <SelectTrigger><SelectValue placeholder="Rating" /></SelectTrigger>
-                  <SelectContent>
-                    {[5, 4, 3, 2, 1].map(r => <SelectItem key={r} value={r.toString()}>{r} Stars</SelectItem>)}
-                  </SelectContent>
-                </Select>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1740,62 +1658,24 @@ const Dashboard = () => {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  placeholder="email@example.com"
-                  value={facultyForm.email}
-                  onChange={(e) => setFacultyForm({ ...facultyForm, email: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Phone</Label>
-                <Input
-                  placeholder="+1234567890"
-                  value={facultyForm.phone}
-                  onChange={(e) => setFacultyForm({ ...facultyForm, phone: e.target.value })}
-                />
-              </div>
-            </div>
             <ImageUpload
               label="Faculty Photo"
               placeholder="Enter photo URL or upload"
               value={facultyForm.image}
               onChange={(url) => setFacultyForm({ ...facultyForm, image: url })}
             />
-            <div className="space-y-2">
-              <Label>Bio</Label>
-              <Textarea
-                placeholder="Brief biography..."
-                rows={3}
-                value={facultyForm.bio}
-                onChange={(e) => setFacultyForm({ ...facultyForm, bio: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Qualifications (comma separated)</Label>
-              <Input
-                placeholder="CEH, CISSP, OSCP"
-                value={Array.isArray(facultyForm.qualifications) ? facultyForm.qualifications.join(', ') : (facultyForm.qualifications || '')}
-                onChange={(e) => {
-                  const quals = e.target.value.split(',').map(q => q.trim()).filter(q => q !== '');
-                  setFacultyForm({ ...facultyForm, qualifications: quals });
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Expertise Areas (comma separated, optional)</Label>
-              <Input
-                placeholder="Network Security, Penetration Testing"
-                value={Array.isArray(facultyForm.expertise_areas) ? facultyForm.expertise_areas.join(', ') : (facultyForm.expertise_areas || '')}
-                onChange={(e) => {
-                  const areas = e.target.value.split(',').map(a => a.trim()).filter(a => a !== '');
-                  setFacultyForm({ ...facultyForm, expertise_areas: areas });
-                }}
-              />
-            </div>
+
+          </div>
+          <div className="space-y-2">
+            <Label>Qualifications (comma separated)</Label>
+            <Input
+              placeholder="CEH, CISSP, OSCP"
+              value={Array.isArray(facultyForm.qualifications) ? facultyForm.qualifications.join(', ') : (facultyForm.qualifications || '')}
+              onChange={(e) => {
+                const quals = e.target.value.split(',').map(q => q.trim()).filter(q => q !== '');
+                setFacultyForm({ ...facultyForm, qualifications: quals });
+              }}
+            />
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setFacultyModal({ open: false, mode: "add" })}>Cancel</Button>
@@ -1846,47 +1726,6 @@ const Dashboard = () => {
                   onChange={(e) => setCertificateForm({ ...certificateForm, order: parseInt(e.target.value) || 0 })}
                 />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Certificate Number</Label>
-              <Input
-                placeholder="Optional"
-                value={certificateForm.certificate_number}
-                onChange={(e) => setCertificateForm({ ...certificateForm, certificate_number: e.target.value })}
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Issue Date</Label>
-                <Input
-                  type="date"
-                  value={certificateForm.issue_date}
-                  onChange={(e) => setCertificateForm({ ...certificateForm, issue_date: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Expiry Date</Label>
-                <Input
-                  type="date"
-                  value={certificateForm.expiry_date}
-                  onChange={(e) => setCertificateForm({ ...certificateForm, expiry_date: e.target.value })}
-                />
-              </div>
-            </div>
-            <ImageUpload
-              label="Certificate Image"
-              placeholder="Enter image URL or upload"
-              value={certificateForm.image}
-              onChange={(url) => setCertificateForm({ ...certificateForm, image: url })}
-            />
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea
-                placeholder="Details about this recognition..."
-                rows={3}
-                value={certificateForm.description}
-                onChange={(e) => setCertificateForm({ ...certificateForm, description: e.target.value })}
-              />
             </div>
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
@@ -1944,15 +1783,7 @@ const Dashboard = () => {
               value={galleryForm.image}
               onChange={(url) => setGalleryForm({ ...galleryForm, image: url })}
             />
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea
-                placeholder="Description for accessibility"
-                rows={3}
-                value={galleryForm.description}
-                onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })}
-              />
-            </div>
+
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setGalleryModal({ open: false, mode: "add" })}>Cancel</Button>
@@ -1976,7 +1807,7 @@ const Dashboard = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 };
 

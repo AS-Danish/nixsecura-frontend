@@ -13,8 +13,6 @@ export interface Workshop {
   max_participants?: number;
   registrations: number;
   status: 'upcoming' | 'open' | 'completed' | 'cancelled';
-  price?: number;
-  instructors?: string[];
 }
 
 export interface WorkshopInput {
@@ -28,8 +26,6 @@ export interface WorkshopInput {
   max_participants?: number;
   registrations?: number;
   status: 'upcoming' | 'open' | 'completed' | 'cancelled';
-  price?: number;
-  instructors?: string[];
 }
 
 const mapToWorkshop = (data: any): Workshop => {
@@ -45,8 +41,6 @@ const mapToWorkshop = (data: any): Workshop => {
     max_participants: data.max_participants,
     registrations: data.registrations || 0,
     status: data.status || 'upcoming',
-    price: data.price,
-    instructors: Array.isArray(data.instructors) ? data.instructors : [],
   };
 };
 

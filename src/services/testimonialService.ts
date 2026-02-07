@@ -6,7 +6,6 @@ export interface Testimonial {
   name: string;
   course?: string;
   testimonial?: string;
-  rating: number;
   image?: string;
   position?: string;
   company?: string;
@@ -17,7 +16,6 @@ export interface TestimonialInput {
   name: string;
   course?: string;
   testimonial?: string;
-  rating: number;
   image?: string;
   position?: string;
   company?: string;
@@ -30,7 +28,6 @@ const mapToTestimonial = (data: any): Testimonial => {
     name: data.name,
     course: data.course || '',
     testimonial: data.testimonial || '',
-    rating: data.rating || 5,
     image: normalizeImageUrl(data.image),
     position: data.position || '',
     company: data.company || '',
