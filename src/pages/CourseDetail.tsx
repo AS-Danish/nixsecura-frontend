@@ -8,11 +8,14 @@ import { useEffect, useState } from "react";
 import { courseService } from "@/services/courseService";
 import { Course } from "@/data/courses";
 
+import { EnrollmentModal } from "@/components/EnrollmentModal";
+
 const CourseDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
+  const [enrollModalOpen, setEnrollModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -47,13 +50,13 @@ const CourseDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       {/* Hero Banner */}
       <section className="relative pt-24 pb-16 overflow-hidden">
         <div className="absolute inset-0">
-          <img 
-            src={course.image || '/placeholder.svg'} 
-            alt={course.title} 
+          <img
+            src={course.image || '/placeholder.svg'}
+            alt={course.title}
             className="w-full h-full object-cover opacity-20"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -64,7 +67,7 @@ const CourseDetail = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
         </div>
-        
+
         <div className="container mx-auto px-4 lg:px-8 relative z-10">
           <motion.button
             initial={{ opacity: 0, x: -20 }}
@@ -88,7 +91,7 @@ const CourseDetail = () => {
               <h1 className="text-3xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
                 {course.title}
               </h1>
-              <div 
+              <div
                 className="prose prose-sm max-w-none text-muted-foreground mb-8 leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: course.description }}
               />
@@ -147,9 +150,9 @@ const CourseDetail = () => {
       {/* Main Content */}
       <section className="py-16">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="grid lg:grid-cols-1 gap-12">
-            {/* Main Content - Curriculum */}
-            <div className="space-y-12">
+          <div className="grid lg:grid-cols-3 gap-12">
+            {/* Left Column - Curriculum */}
+            <div className="lg:col-span-2 space-y-12">
               {/* Curriculum */}
               {course.curriculum.length > 0 && (
                 <motion.div
@@ -191,12 +194,48 @@ const CourseDetail = () => {
                 </motion.div>
               )}
             </div>
+
+            {/* Right Column - Sticky Enroll Card */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-card border border-border rounded-xl p-6 shadow-lg"
+                >
+                  <h3 className="text-xl font-bold mb-4">Ready to Start?</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Enroll now to kickstart your journey in cybersecurity with this comprehensive course.
+                  </p>
+
+                  <div className="space-y-4">
+                    <Button
+                      variant="hero"
+                      className="w-full h-12 text-lg"
+                      onClick={() => setEnrollModalOpen(true)}
+                    >
+                      Enroll Now
+                    </Button>
+                    <p className="text-xs text-center text-muted-foreground">
+                      * Limited seats available for the upcoming batch
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </section >
+
+      <EnrollmentModal
+        isOpen={enrollModalOpen}
+        onClose={() => setEnrollModalOpen(false)}
+        defaultCourseId={id}
+      />
 
       <Footer />
-    </div>
+    </div >
   );
 };
 

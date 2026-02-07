@@ -99,5 +99,10 @@ export const courseService = {
   delete: async (id: string) => {
     const response = await api.delete(`/api/courses/${id}`);
     return response.data;
+  },
+
+  getList: async (): Promise<{ id: number; title: string; duration: string }[]> => {
+    const response = await api.get('/api/courses/list');
+    return response.data;
   }
 };

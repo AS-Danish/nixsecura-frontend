@@ -42,6 +42,8 @@ import { useAuth } from "@/context/AuthContext";
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
+import { dashboardService, DashboardStats } from "@/services/dashboardService";
+
 const modules = {
   toolbar: [
     [{ 'header': [1, 2, 3, false] }],
@@ -68,6 +70,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
 
   // Data states
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -179,15 +182,45 @@ const Dashboard = () => {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const data = await dashboardService.getStats();
+      setStats(data);
+    } catch (e) {
+      console.error("Failed to fetch stats", e);
+      toast({ title: "Error", description: "Failed to fetch dashboard stats.", variant: "destructive" });
+    }
+  };
+
   useEffect(() => {
-    fetchBlogs();
-    fetchCourses();
-    fetchWorkshops();
-    fetchTestimonials();
-    fetchFaculty();
-    fetchCertificates();
-    fetchGallery();
+    fetchStats();
   }, []);
+
+  useEffect(() => {
+    switch (activeTab) {
+      case "blogs":
+        if (blogs.length === 0) fetchBlogs();
+        break;
+      case "courses":
+        if (courses.length === 0) fetchCourses();
+        break;
+      case "workshops":
+        if (workshops.length === 0) fetchWorkshops();
+        break;
+      case "testimonials":
+        if (testimonials.length === 0) fetchTestimonials();
+        break;
+      case "faculty":
+        if (faculty.length === 0) fetchFaculty();
+        break;
+      case "certificates":
+        if (certificates.length === 0) fetchCertificates();
+        break;
+      case "gallery":
+        if (gallery.length === 0) fetchGallery();
+        break;
+    }
+  }, [activeTab]);
 
   // Course Form State
   const [courseForm, setCourseForm] = useState<{
@@ -259,9 +292,7 @@ const Dashboard = () => {
     is_featured: false
   });
 
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
+
 
   useEffect(() => {
     const loadBlogData = async () => {
@@ -883,10 +914,10 @@ const Dashboard = () => {
               <h2 className="text-2xl font-bold text-foreground">Dashboard Overview</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: "Total Blogs", value: blogs.length.toString(), change: "" },
-                  { label: "Active Courses", value: courses.length.toString(), change: "" },
-                  { label: "Upcoming Workshops", value: workshops.filter(w => w.status === "upcoming" || w.status === "open").length.toString(), change: workshops.length > 0 ? `${workshops.reduce((sum, w) => sum + (w.registrations || 0), 0)} registrations` : "" },
-                  { label: "Testimonials", value: testimonials.length.toString(), change: testimonials.length > 0 ? `${testimonials.filter(t => t.is_featured).length} featured` : "" },
+                  { label: "Total Blogs", value: stats?.blogs || 0, change: "" },
+                  { label: "Active Courses", value: stats?.courses || 0, change: "" },
+                  { label: "Upcoming Workshops", value: stats?.workshops.upcoming || 0, change: stats ? `${stats.workshops.registrations} registrations` : "" },
+                  { label: "Testimonials", value: stats?.testimonials.total || 0, change: stats ? `${stats.testimonials.featured} featured` : "" },
                 ].map((stat, i) => (
                   <Card key={i} className="border-border/50">
                     <CardContent className="pt-6">
