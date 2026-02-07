@@ -46,7 +46,7 @@ const modules = {
   toolbar: [
     [{ 'header': [1, 2, 3, false] }],
     ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-    [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
     ['link', 'image'],
     ['clean']
   ],
@@ -66,7 +66,7 @@ const Dashboard = () => {
   const { logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
-  
+
   // Data states
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
@@ -74,7 +74,7 @@ const Dashboard = () => {
   const [faculty, setFaculty] = useState<Faculty[]>([]);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [gallery, setGallery] = useState<Gallery[]>([]);
-  
+
   // Modal states
   const [blogModal, setBlogModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: BlogPost }>({ open: false, mode: "add" });
   const [courseModal, setCourseModal] = useState<{ open: boolean; mode: "add" | "edit"; data?: Course }>({ open: false, mode: "add" });
@@ -98,11 +98,11 @@ const Dashboard = () => {
 
   // Courses State (for listing and stats)
   const [courses, setCourses] = useState<Course[]>([]);
-  
+
   const fetchCourses = async () => {
     try {
-      const data = await courseService.getAll();
-      setCourses(Array.isArray(data) ? data : []);
+      const response = await courseService.getAll();
+      setCourses(response.data);
     } catch (e: any) {
       console.error("Failed to fetch courses", e);
       setCourses([]); // Set empty array on error
@@ -280,48 +280,48 @@ const Dashboard = () => {
   useEffect(() => {
     const loadBlogData = async () => {
       if (blogModal.open && blogModal.mode === "edit" && blogModal.data) {
-          // Set initial data from local state to avoid flicker
-          setBlogForm({
-              title: blogModal.data.title,
-              excerpt: blogModal.data.excerpt,
-              content: blogModal.data.content,
-              image: blogModal.data.image,
-              category: blogModal.data.category,
-              published_at: blogModal.data.date,
-              tags: blogModal.data.tags || []
-          });
+        // Set initial data from local state to avoid flicker
+        setBlogForm({
+          title: blogModal.data.title,
+          excerpt: blogModal.data.excerpt,
+          content: blogModal.data.content,
+          image: blogModal.data.image,
+          category: blogModal.data.category,
+          published_at: blogModal.data.date,
+          tags: blogModal.data.tags || []
+        });
 
-          try {
-            // Fetch fresh data from server to ensure content is complete
-            const freshData = await blogService.getById(blogModal.data.id);
-            setBlogForm({
-              title: freshData.title,
-              excerpt: freshData.excerpt,
-              content: freshData.content,
-              image: freshData.image,
-              category: freshData.category,
-              published_at: freshData.date,
-              tags: freshData.tags || []
-            });
-          } catch (error) {
-            console.error("Failed to fetch blog details", error);
-            toast({
-              title: "Error",
-              description: "Failed to load latest blog details",
-              variant: "destructive",
-            });
-          }
+        try {
+          // Fetch fresh data from server to ensure content is complete
+          const freshData = await blogService.getById(blogModal.data.id);
+          setBlogForm({
+            title: freshData.title,
+            excerpt: freshData.excerpt,
+            content: freshData.content,
+            image: freshData.image,
+            category: freshData.category,
+            published_at: freshData.date,
+            tags: freshData.tags || []
+          });
+        } catch (error) {
+          console.error("Failed to fetch blog details", error);
+          toast({
+            title: "Error",
+            description: "Failed to load latest blog details",
+            variant: "destructive",
+          });
+        }
       } else if (blogModal.open && blogModal.mode === "add") {
-          // Don't clear image if it was just uploaded - preserve it
-          setBlogForm(prev => ({
-              title: "",
-              excerpt: "",
-              content: "",
-              image: prev.image || "", // Keep image if it exists
-              category: "Threats",
-              published_at: new Date().toISOString().split('T')[0],
-              tags: []
-          }));
+        // Don't clear image if it was just uploaded - preserve it
+        setBlogForm(prev => ({
+          title: "",
+          excerpt: "",
+          content: "",
+          image: prev.image || "", // Keep image if it exists
+          category: "Threats",
+          published_at: new Date().toISOString().split('T')[0],
+          tags: []
+        }));
       }
     };
     loadBlogData();
@@ -335,8 +335,8 @@ const Dashboard = () => {
         duration: courseModal.data.duration || "",
         image: courseModal.data.image || "",
         description: courseModal.data.description || "",
-        curriculum: courseModal.data.curriculum 
-          ? courseModal.data.curriculum.map(c => c.module).join('\n') 
+        curriculum: courseModal.data.curriculum
+          ? courseModal.data.curriculum.map(c => c.module).join('\n')
           : ""
       });
     } else if (courseModal.open && courseModal.mode === "add") {
@@ -497,15 +497,15 @@ const Dashboard = () => {
 
   const fetchBlogs = async () => {
     try {
-        const data = await blogService.getAll();
-        setBlogs(Array.isArray(data) ? data : []);
+      const data = await blogService.getAll();
+      setBlogs(Array.isArray(data) ? data : []);
     } catch (error: any) {
-        console.error("Failed to fetch blogs", error);
-        setBlogs([]); // Set empty array on error
-        // Only show error if it's a real error (not 404 or network issue)
-        if (error?.response?.status && error?.response?.status !== 404 && error?.response?.status !== 0) {
-          toast({ title: "Error", description: "Failed to fetch blogs.", variant: "destructive" });
-        }
+      console.error("Failed to fetch blogs", error);
+      setBlogs([]); // Set empty array on error
+      // Only show error if it's a real error (not 404 or network issue)
+      if (error?.response?.status && error?.response?.status !== 404 && error?.response?.status !== 0) {
+        toast({ title: "Error", description: "Failed to fetch blogs.", variant: "destructive" });
+      }
     }
   };
 
@@ -584,18 +584,18 @@ const Dashboard = () => {
           excerpt: blogForm.excerpt.trim(),
           content: blogForm.content.trim(), // Keep HTML from ReactQuill
           category: blogForm.category.trim(),
-          tags: Array.isArray(blogForm.tags) 
-            ? blogForm.tags.filter(t => t.trim() !== '') 
+          tags: Array.isArray(blogForm.tags)
+            ? blogForm.tags.filter(t => t.trim() !== '')
             : [],
         };
-        
+
         // Only include optional fields if they have values
         if (blogForm.image?.trim()) {
           payload.image = blogForm.image.trim();
         }
         if (blogForm.published_at) {
-          payload.published_at = blogForm.published_at.includes('T') 
-            ? blogForm.published_at.split('T')[0] 
+          payload.published_at = blogForm.published_at.includes('T')
+            ? blogForm.published_at.split('T')[0]
             : blogForm.published_at;
         }
 
@@ -629,12 +629,12 @@ const Dashboard = () => {
 
         const curriculumArray = courseForm.curriculum
           ? courseForm.curriculum.split('\n')
-              .filter(line => line.trim() !== '')
-              .map(line => ({
-                module: line.trim(),
-                topics: [line.trim()],
-                duration: "TBD"
-              }))
+            .filter(line => line.trim() !== '')
+            .map(line => ({
+              module: line.trim(),
+              topics: [line.trim()],
+              duration: "TBD"
+            }))
           : [];
 
         // Clean and prepare course data
@@ -688,7 +688,7 @@ const Dashboard = () => {
           registrations: workshopForm.registrations || 0,
           price: workshopForm.price || undefined,
         };
-        
+
         if (workshopModal.mode === "add") {
           await workshopService.create(cleanWorkshopData);
           toast({ title: "Workshop Added", description: "New workshop has been added." });
@@ -721,7 +721,7 @@ const Dashboard = () => {
           image: testimonialForm.image?.trim() || undefined,
           is_featured: testimonialForm.is_featured || false,
         };
-        
+
         if (testimonialModal.mode === "add") {
           await testimonialService.create(cleanTestimonialData);
           toast({ title: "Testimonial Added", description: "New testimonial has been added." });
@@ -757,7 +757,7 @@ const Dashboard = () => {
           order: facultyForm.order || 0,
           is_active: facultyForm.is_active !== undefined ? facultyForm.is_active : true,
         };
-        
+
         if (facultyModal.mode === "add") {
           await facultyService.create(cleanFacultyData);
           toast({ title: "Faculty Added", description: "New faculty member has been added." });
@@ -796,7 +796,7 @@ const Dashboard = () => {
           order: certificateForm.order || 0,
           is_featured: certificateForm.is_featured || false,
         };
-        
+
         if (certificateModal.mode === "add") {
           await certificateService.create(cleanCertificateData);
           toast({ title: "Certificate Added", description: "New certificate has been added." });
@@ -831,7 +831,7 @@ const Dashboard = () => {
           order: galleryForm.order || 0,
           is_featured: galleryForm.is_featured || false,
         };
-        
+
         if (galleryModal.mode === "add") {
           await galleryService.create(cleanGalleryData);
           toast({ title: "Gallery Item Added", description: "New gallery item has been added." });
@@ -854,10 +854,10 @@ const Dashboard = () => {
         backendErrors
         || (backendMessage && backendMessage !== 'Validation failed' ? backendMessage : null)
         || `Failed to save ${type}. Please check all required fields.`;
-      toast({ 
-        title: "Error", 
-        description: errorMessage, 
-        variant: "destructive" 
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
       });
     }
   };
@@ -866,22 +866,21 @@ const Dashboard = () => {
     <div className="min-h-screen bg-muted/30 flex">
       {/* Sidebar Overlay for Mobile */}
       {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
-          onClick={() => setSidebarOpen(false)} 
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-40 w-64 h-screen bg-card border-r border-border flex flex-col transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0 lg:w-0 lg:overflow-hidden"
-        }`}
+        className={`fixed lg:sticky top-0 left-0 z-40 w-64 h-screen bg-card border-r border-border flex flex-col transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0 lg:w-0 lg:overflow-hidden"
+          }`}
       >
         <div className="p-4 border-b border-border">
           <h1 className="text-xl font-bold text-primary">Admin Dashboard</h1>
         </div>
-        
+
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => (
             <button
@@ -890,11 +889,10 @@ const Dashboard = () => {
                 setActiveTab(item.id);
                 if (window.innerWidth < 1024) setSidebarOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                activeTab === item.id
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === item.id
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
+                }`}
             >
               <item.icon className="w-5 h-5" />
               {item.label}
@@ -1356,18 +1354,18 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Title</Label>
-              <Input 
-                placeholder="Enter blog title" 
+              <Input
+                placeholder="Enter blog title"
                 value={blogForm.title}
                 onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })}
               />
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Category</Label>
-                <Select 
-                  value={blogForm.category} 
+                <Select
+                  value={blogForm.category}
                   onValueChange={(value) => setBlogForm({ ...blogForm, category: value })}
                 >
                   <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
@@ -1382,7 +1380,7 @@ const Dashboard = () => {
               </div>
               <div className="space-y-2">
                 <Label>Publish Date</Label>
-                <Input 
+                <Input
                   type="date"
                   value={blogForm.published_at ? blogForm.published_at.split('T')[0] : ''}
                   onChange={(e) => setBlogForm({ ...blogForm, published_at: e.target.value })}
@@ -1391,26 +1389,26 @@ const Dashboard = () => {
             </div>
 
             <div className="space-y-2">
-                <Label>Tags (comma separated)</Label>
-                <Input 
-                  placeholder="security, hacking, tutorial" 
-                  value={blogForm.tags?.join(', ') || ''}
-                  onChange={(e) => setBlogForm({ ...blogForm, tags: e.target.value.split(',').map(t => t.trim()) })}
-                />
+              <Label>Tags (comma separated)</Label>
+              <Input
+                placeholder="security, hacking, tutorial"
+                value={blogForm.tags?.join(', ') || ''}
+                onChange={(e) => setBlogForm({ ...blogForm, tags: e.target.value.split(',').map(t => t.trim()) })}
+              />
             </div>
 
-            <ImageUpload 
-                label="Featured Image" 
-                placeholder="Enter image URL or upload" 
-                value={blogForm.image}
-                onChange={(url) => setBlogForm({ ...blogForm, image: url })}
+            <ImageUpload
+              label="Featured Image"
+              placeholder="Enter image URL or upload"
+              value={blogForm.image}
+              onChange={(url) => setBlogForm({ ...blogForm, image: url })}
             />
-            
+
             <div className="space-y-2">
               <Label>Excerpt</Label>
-              <Textarea 
-                placeholder="Brief description..." 
-                rows={2} 
+              <Textarea
+                placeholder="Brief description..."
+                rows={2}
                 value={blogForm.excerpt}
                 onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
               />
@@ -1418,7 +1416,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <Label>Content</Label>
               <div className="h-72 mb-12">
-                <ReactQuill 
+                <ReactQuill
                   theme="snow"
                   value={blogForm.content}
                   onChange={(content) => setBlogForm({ ...blogForm, content })}
@@ -1428,7 +1426,7 @@ const Dashboard = () => {
                 />
               </div>
             </div>
-            
+
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4">
             <Button variant="outline" onClick={() => setBlogModal({ open: false, mode: "add" })}>Cancel</Button>
@@ -1447,8 +1445,8 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Course Title</Label>
-              <Input 
-                placeholder="Enter course title" 
+              <Input
+                placeholder="Enter course title"
                 value={courseForm.title}
                 onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
               />
@@ -1468,22 +1466,22 @@ const Dashboard = () => {
             </div>
             <div className="space-y-2">
               <Label>Duration</Label>
-              <Input 
-                placeholder="e.g., 12 Weeks" 
+              <Input
+                placeholder="e.g., 12 Weeks"
                 value={courseForm.duration}
                 onChange={(e) => setCourseForm({ ...courseForm, duration: e.target.value })}
               />
             </div>
-            <ImageUpload 
-              label="Course Image" 
-              placeholder="Enter image URL or upload" 
+            <ImageUpload
+              label="Course Image"
+              placeholder="Enter image URL or upload"
               value={courseForm.image}
               onChange={(url) => setCourseForm({ ...courseForm, image: url })}
             />
             <div className="space-y-2">
               <Label>Description</Label>
               <div className="h-72 mb-12">
-                <ReactQuill 
+                <ReactQuill
                   theme="snow"
                   value={courseForm.description}
                   onChange={(content) => setCourseForm({ ...courseForm, description: content })}
@@ -1495,9 +1493,9 @@ const Dashboard = () => {
             </div>
             <div className="space-y-2">
               <Label>Curriculum (one topic per line)</Label>
-              <Textarea 
-                placeholder="Introduction&#10;Module 1&#10;Module 2..." 
-                rows={4} 
+              <Textarea
+                placeholder="Introduction&#10;Module 1&#10;Module 2..."
+                rows={4}
                 value={courseForm.curriculum}
                 onChange={(e) => setCourseForm({ ...courseForm, curriculum: e.target.value })}
               />
@@ -1520,8 +1518,8 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Workshop Title</Label>
-              <Input 
-                placeholder="Enter workshop title" 
+              <Input
+                placeholder="Enter workshop title"
                 value={workshopForm.title}
                 onChange={(e) => setWorkshopForm({ ...workshopForm, title: e.target.value })}
               />
@@ -1529,15 +1527,15 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Date</Label>
-                <Input 
-                  type="date" 
+                <Input
+                  type="date"
                   value={workshopForm.date}
                   onChange={(e) => setWorkshopForm({ ...workshopForm, date: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Status</Label>
-                <Select 
+                <Select
                   value={workshopForm.status}
                   onValueChange={(value: any) => setWorkshopForm({ ...workshopForm, status: value })}
                 >
@@ -1554,17 +1552,17 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Location</Label>
-                <Input 
-                  placeholder="Venue or Online" 
+                <Input
+                  placeholder="Venue or Online"
                   value={workshopForm.location}
                   onChange={(e) => setWorkshopForm({ ...workshopForm, location: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Max Participants</Label>
-                <Input 
-                  type="number" 
-                  placeholder="50" 
+                <Input
+                  type="number"
+                  placeholder="50"
                   value={workshopForm.max_participants || ''}
                   onChange={(e) => setWorkshopForm({ ...workshopForm, max_participants: e.target.value ? parseInt(e.target.value) : undefined })}
                 />
@@ -1573,16 +1571,16 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Start Time</Label>
-                <Input 
-                  type="time" 
+                <Input
+                  type="time"
                   value={workshopForm.start_time}
                   onChange={(e) => setWorkshopForm({ ...workshopForm, start_time: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>End Time</Label>
-                <Input 
-                  type="time" 
+                <Input
+                  type="time"
                   value={workshopForm.end_time}
                   onChange={(e) => setWorkshopForm({ ...workshopForm, end_time: e.target.value })}
                 />
@@ -1590,23 +1588,23 @@ const Dashboard = () => {
             </div>
             <div className="space-y-2">
               <Label>Price</Label>
-              <Input 
-                type="number" 
-                placeholder="0.00" 
+              <Input
+                type="number"
+                placeholder="0.00"
                 value={workshopForm.price || ''}
                 onChange={(e) => setWorkshopForm({ ...workshopForm, price: e.target.value ? parseFloat(e.target.value) : undefined })}
               />
             </div>
-            <ImageUpload 
-              label="Workshop Image" 
-              placeholder="Enter image URL or upload" 
+            <ImageUpload
+              label="Workshop Image"
+              placeholder="Enter image URL or upload"
               value={workshopForm.image}
               onChange={(url) => setWorkshopForm({ ...workshopForm, image: url })}
             />
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea 
-                placeholder="Workshop description..." 
+              <Textarea
+                placeholder="Workshop description..."
                 rows={3}
                 value={workshopForm.description}
                 onChange={(e) => setWorkshopForm({ ...workshopForm, description: e.target.value })}
@@ -1630,8 +1628,8 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Student Name</Label>
-              <Input 
-                placeholder="Full name" 
+              <Input
+                placeholder="Full name"
                 value={testimonialForm.name}
                 onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })}
               />
@@ -1639,15 +1637,15 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Course</Label>
-                <Input 
-                  placeholder="Course name" 
+                <Input
+                  placeholder="Course name"
                   value={testimonialForm.course}
                   onChange={(e) => setTestimonialForm({ ...testimonialForm, course: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Rating</Label>
-                <Select 
+                <Select
                   value={testimonialForm.rating.toString()}
                   onValueChange={(value) => setTestimonialForm({ ...testimonialForm, rating: parseInt(value) })}
                 >
@@ -1661,31 +1659,31 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Position</Label>
-                <Input 
-                  placeholder="Job title" 
+                <Input
+                  placeholder="Job title"
                   value={testimonialForm.position}
                   onChange={(e) => setTestimonialForm({ ...testimonialForm, position: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Company</Label>
-                <Input 
-                  placeholder="Company name" 
+                <Input
+                  placeholder="Company name"
                   value={testimonialForm.company}
                   onChange={(e) => setTestimonialForm({ ...testimonialForm, company: e.target.value })}
                 />
               </div>
             </div>
-            <ImageUpload 
-              label="Student Photo" 
-              placeholder="Enter photo URL or upload" 
+            <ImageUpload
+              label="Student Photo"
+              placeholder="Enter photo URL or upload"
               value={testimonialForm.image}
               onChange={(url) => setTestimonialForm({ ...testimonialForm, image: url })}
             />
             <div className="space-y-2">
               <Label>Testimonial</Label>
-              <Textarea 
-                placeholder="What the student said..." 
+              <Textarea
+                placeholder="What the student said..."
                 rows={4}
                 value={testimonialForm.testimonial}
                 onChange={(e) => setTestimonialForm({ ...testimonialForm, testimonial: e.target.value })}
@@ -1709,16 +1707,16 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Full Name</Label>
-              <Input 
-                placeholder="Dr. John Doe" 
+              <Input
+                placeholder="Dr. John Doe"
                 value={facultyForm.name}
                 onChange={(e) => setFacultyForm({ ...facultyForm, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label>Specialization</Label>
-              <Input 
-                placeholder="e.g., Ethical Hacking" 
+              <Input
+                placeholder="e.g., Ethical Hacking"
                 value={facultyForm.specialization}
                 onChange={(e) => setFacultyForm({ ...facultyForm, specialization: e.target.value })}
               />
@@ -1726,17 +1724,17 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Experience</Label>
-                <Input 
-                  placeholder="e.g., 10 years" 
+                <Input
+                  placeholder="e.g., 10 years"
                   value={facultyForm.experience}
                   onChange={(e) => setFacultyForm({ ...facultyForm, experience: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Order</Label>
-                <Input 
-                  type="number" 
-                  placeholder="0" 
+                <Input
+                  type="number"
+                  placeholder="0"
                   value={facultyForm.order}
                   onChange={(e) => setFacultyForm({ ...facultyForm, order: parseInt(e.target.value) || 0 })}
                 />
@@ -1745,32 +1743,32 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Email</Label>
-                <Input 
-                  type="email" 
-                  placeholder="email@example.com" 
+                <Input
+                  type="email"
+                  placeholder="email@example.com"
                   value={facultyForm.email}
                   onChange={(e) => setFacultyForm({ ...facultyForm, email: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Phone</Label>
-                <Input 
-                  placeholder="+1234567890" 
+                <Input
+                  placeholder="+1234567890"
                   value={facultyForm.phone}
                   onChange={(e) => setFacultyForm({ ...facultyForm, phone: e.target.value })}
                 />
               </div>
             </div>
-            <ImageUpload 
-              label="Faculty Photo" 
-              placeholder="Enter photo URL or upload" 
+            <ImageUpload
+              label="Faculty Photo"
+              placeholder="Enter photo URL or upload"
               value={facultyForm.image}
               onChange={(url) => setFacultyForm({ ...facultyForm, image: url })}
             />
             <div className="space-y-2">
               <Label>Bio</Label>
-              <Textarea 
-                placeholder="Brief biography..." 
+              <Textarea
+                placeholder="Brief biography..."
                 rows={3}
                 value={facultyForm.bio}
                 onChange={(e) => setFacultyForm({ ...facultyForm, bio: e.target.value })}
@@ -1778,8 +1776,8 @@ const Dashboard = () => {
             </div>
             <div className="space-y-2">
               <Label>Qualifications (comma separated)</Label>
-              <Input 
-                placeholder="CEH, CISSP, OSCP" 
+              <Input
+                placeholder="CEH, CISSP, OSCP"
                 value={Array.isArray(facultyForm.qualifications) ? facultyForm.qualifications.join(', ') : (facultyForm.qualifications || '')}
                 onChange={(e) => {
                   const quals = e.target.value.split(',').map(q => q.trim()).filter(q => q !== '');
@@ -1789,8 +1787,8 @@ const Dashboard = () => {
             </div>
             <div className="space-y-2">
               <Label>Expertise Areas (comma separated, optional)</Label>
-              <Input 
-                placeholder="Network Security, Penetration Testing" 
+              <Input
+                placeholder="Network Security, Penetration Testing"
                 value={Array.isArray(facultyForm.expertise_areas) ? facultyForm.expertise_areas.join(', ') : (facultyForm.expertise_areas || '')}
                 onChange={(e) => {
                   const areas = e.target.value.split(',').map(a => a.trim()).filter(a => a !== '');
@@ -1816,16 +1814,16 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Title</Label>
-              <Input 
-                placeholder="Award/Certificate name" 
+              <Input
+                placeholder="Award/Certificate name"
                 value={certificateForm.title}
                 onChange={(e) => setCertificateForm({ ...certificateForm, title: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label>Issuing Organization</Label>
-              <Input 
-                placeholder="e.g., ISO, NASSCOM" 
+              <Input
+                placeholder="e.g., ISO, NASSCOM"
                 value={certificateForm.issuer}
                 onChange={(e) => setCertificateForm({ ...certificateForm, issuer: e.target.value })}
               />
@@ -1833,17 +1831,17 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Year</Label>
-                <Input 
-                  placeholder="2024" 
+                <Input
+                  placeholder="2024"
                   value={certificateForm.year}
                   onChange={(e) => setCertificateForm({ ...certificateForm, year: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Order</Label>
-                <Input 
-                  type="number" 
-                  placeholder="0" 
+                <Input
+                  type="number"
+                  placeholder="0"
                   value={certificateForm.order}
                   onChange={(e) => setCertificateForm({ ...certificateForm, order: parseInt(e.target.value) || 0 })}
                 />
@@ -1851,8 +1849,8 @@ const Dashboard = () => {
             </div>
             <div className="space-y-2">
               <Label>Certificate Number</Label>
-              <Input 
-                placeholder="Optional" 
+              <Input
+                placeholder="Optional"
                 value={certificateForm.certificate_number}
                 onChange={(e) => setCertificateForm({ ...certificateForm, certificate_number: e.target.value })}
               />
@@ -1860,31 +1858,31 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Issue Date</Label>
-                <Input 
-                  type="date" 
+                <Input
+                  type="date"
                   value={certificateForm.issue_date}
                   onChange={(e) => setCertificateForm({ ...certificateForm, issue_date: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Expiry Date</Label>
-                <Input 
-                  type="date" 
+                <Input
+                  type="date"
                   value={certificateForm.expiry_date}
                   onChange={(e) => setCertificateForm({ ...certificateForm, expiry_date: e.target.value })}
                 />
               </div>
             </div>
-            <ImageUpload 
-              label="Certificate Image" 
-              placeholder="Enter image URL or upload" 
+            <ImageUpload
+              label="Certificate Image"
+              placeholder="Enter image URL or upload"
               value={certificateForm.image}
               onChange={(url) => setCertificateForm({ ...certificateForm, image: url })}
             />
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea 
-                placeholder="Details about this recognition..." 
+              <Textarea
+                placeholder="Details about this recognition..."
                 rows={3}
                 value={certificateForm.description}
                 onChange={(e) => setCertificateForm({ ...certificateForm, description: e.target.value })}
@@ -1908,8 +1906,8 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Title</Label>
-              <Input 
-                placeholder="Image title" 
+              <Input
+                placeholder="Image title"
                 value={galleryForm.title}
                 onChange={(e) => setGalleryForm({ ...galleryForm, title: e.target.value })}
               />
@@ -1917,7 +1915,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Category</Label>
-                <Select 
+                <Select
                   value={galleryForm.category}
                   onValueChange={(value) => setGalleryForm({ ...galleryForm, category: value })}
                 >
@@ -1932,24 +1930,24 @@ const Dashboard = () => {
               </div>
               <div className="space-y-2">
                 <Label>Order</Label>
-                <Input 
-                  type="number" 
-                  placeholder="0" 
+                <Input
+                  type="number"
+                  placeholder="0"
                   value={galleryForm.order}
                   onChange={(e) => setGalleryForm({ ...galleryForm, order: parseInt(e.target.value) || 0 })}
                 />
               </div>
             </div>
-            <ImageUpload 
-              label="Gallery Image" 
-              placeholder="Enter image URL or upload" 
+            <ImageUpload
+              label="Gallery Image"
+              placeholder="Enter image URL or upload"
               value={galleryForm.image}
               onChange={(url) => setGalleryForm({ ...galleryForm, image: url })}
             />
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea 
-                placeholder="Description for accessibility" 
+              <Textarea
+                placeholder="Description for accessibility"
                 rows={3}
                 value={galleryForm.description}
                 onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })}

@@ -11,8 +11,8 @@ export const CoursesSection = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await courseService.getAll();
-        setMerged(data);
+        const response = await courseService.getAll();
+        setMerged(response.data);
       } catch {
         console.error("Failed to fetch courses");
       }
@@ -36,7 +36,7 @@ export const CoursesSection = () => {
             Industry-Ready <span className="gradient-text">Training Programs</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            From foundational concepts to advanced specializations, find the perfect course 
+            From foundational concepts to advanced specializations, find the perfect course
             to accelerate your cyber security career.
           </p>
         </motion.div>
@@ -80,7 +80,7 @@ export const CoursesSection = () => {
                   className="prose prose-sm max-w-none text-muted-foreground mb-4 line-clamp-3"
                   dangerouslySetInnerHTML={{ __html: course.description }}
                 />
-                
+
                 {/* Course Meta */}
                 <div className="flex items-center gap-4 mb-6 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5">
@@ -90,9 +90,9 @@ export const CoursesSection = () => {
                 </div>
 
                 <Link to={`/course/${course.id}`}>
-                  <Button 
-                    variant="hero-ghost" 
-                    size="sm" 
+                  <Button
+                    variant="hero-ghost"
+                    size="sm"
                     className="w-full group/btn"
                   >
                     View Course

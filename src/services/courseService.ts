@@ -46,11 +46,36 @@ const mapToCourse = (data: CourseApi): Course => {
   };
 };
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+}
+
 export const courseService = {
-  getAll: async (): Promise<Course[]> => {
-    const response = await api.get('/api/courses');
-    const data = Array.isArray(response.data) ? response.data : (response.data.data || []);
-    return data.map(mapToCourse);
+  getAll: async (params?: { search?: string; category?: string; page?: number }): Promise<PaginatedResponse<Course>> => {
+    const response = await api.get('/api/courses', { params });
+    const data = response.data;
+
+    // Check if it's already a paginated response (has data property which is an array)
+    if (data.data && Array.isArray(data.data) && 'current_page' in data) {
+      return {
+        ...data,
+        data: data.data.map(mapToCourse)
+      };
+    }
+
+    // Fallback for non-paginated response (if any legacy endpoints remain or during transition)
+    const items = Array.isArray(data) ? data : (data.data || []);
+    return {
+      data: items.map(mapToCourse),
+      current_page: 1,
+      last_page: 1,
+      per_page: items.length,
+      total: items.length
+    };
   },
 
   getById: async (id: string): Promise<Course> => {
