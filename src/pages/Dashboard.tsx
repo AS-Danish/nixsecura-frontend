@@ -697,10 +697,10 @@ const Dashboard = () => {
         // Clean and prepare testimonial data
         const cleanTestimonialData: TestimonialInput = {
           name: testimonialForm.name.trim(),
-          course: testimonialForm.course?.trim() || undefined,
+          course: undefined,
           testimonial: testimonialForm.testimonial?.trim() || undefined,
-          position: testimonialForm.position?.trim() || undefined,
-          company: testimonialForm.company?.trim() || undefined,
+          position: undefined,
+          company: undefined,
           image: testimonialForm.image?.trim() || undefined,
           is_featured: testimonialForm.is_featured || false,
         };
@@ -1175,14 +1175,13 @@ const Dashboard = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
-                      <TableHead>Course</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {testimonials.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={2} className="text-center py-8 text-muted-foreground">
                           No testimonials found. Click "Add Testimonial" to create your first testimonial.
                         </TableCell>
                       </TableRow>
@@ -1190,7 +1189,6 @@ const Dashboard = () => {
                       testimonials.map((testimonial) => (
                         <TableRow key={testimonial.id}>
                           <TableCell className="font-medium">{testimonial.name}</TableCell>
-                          <TableCell>{testimonial.course}</TableCell>
                           <TableCell className="text-right">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
@@ -1605,34 +1603,6 @@ const Dashboard = () => {
                 value={testimonialForm.name}
                 onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })}
               />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Course</Label>
-                <Input
-                  placeholder="Course name"
-                  value={testimonialForm.course}
-                  onChange={(e) => setTestimonialForm({ ...testimonialForm, course: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Position</Label>
-                <Input
-                  placeholder="Job title"
-                  value={testimonialForm.position}
-                  onChange={(e) => setTestimonialForm({ ...testimonialForm, position: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Company</Label>
-                <Input
-                  placeholder="Company name"
-                  value={testimonialForm.company}
-                  onChange={(e) => setTestimonialForm({ ...testimonialForm, company: e.target.value })}
-                />
-              </div>
             </div>
             <ImageUpload
               label="Student Photo"

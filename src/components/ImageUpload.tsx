@@ -14,9 +14,9 @@ interface ImageUploadProps {
   placeholder?: string;
 }
 
-export const ImageUpload = ({ 
-  label = "Image", 
-  value = "", 
+export const ImageUpload = ({
+  label = "Image",
+  value = "",
   onChange,
   placeholder = "Upload image or paste URL"
 }: ImageUploadProps) => {
@@ -64,25 +64,20 @@ export const ImageUpload = ({
     }
 
     setUploading(true);
-    
+
     try {
-      // Show local preview immediately
-      const localPreview = URL.createObjectURL(file);
-      setPreviewUrl(localPreview);
+      // Don't show local preview immediately, wait for upload
       setUrlInput("");
 
       // Upload to server
       const uploadedUrl = await imageUploadService.upload(file);
-      
+
       // Update preview with server URL and keep it visible
       const normalized = normalizeImageUrl(uploadedUrl);
       setPreviewUrl(normalized);
       setUrlInput(normalized); // Also set URL input so it shows the path
       onChange?.(normalized);
-      
-      // Clean up local preview URL
-      URL.revokeObjectURL(localPreview);
-      
+
       toast({
         title: "Success",
         description: "Image uploaded successfully",
@@ -125,13 +120,13 @@ export const ImageUpload = ({
   return (
     <div className="space-y-3">
       <Label>{label}</Label>
-      
+
       {/* Preview */}
       {previewUrl && (
         <div className="relative rounded-lg overflow-hidden border border-border bg-muted/30">
-          <img 
-            src={previewUrl} 
-            alt="Preview" 
+          <img
+            src={previewUrl}
+            alt="Preview"
             className="w-full h-40 object-cover"
             onError={(e) => {
               // Don't clear preview on error - might be CORS or temporary issue
@@ -152,10 +147,9 @@ export const ImageUpload = ({
 
       {/* Upload Area */}
       {!previewUrl && (
-        <div 
-          className={`border-2 border-dashed border-border/50 rounded-lg p-6 text-center transition-colors ${
-            uploading ? 'cursor-wait opacity-50' : 'cursor-pointer hover:border-primary/50'
-          }`}
+        <div
+          className={`border-2 border-dashed border-border/50 rounded-lg p-6 text-center transition-colors ${uploading ? 'cursor-wait opacity-50' : 'cursor-pointer hover:border-primary/50'
+            }`}
           onClick={() => !uploading && fileInputRef.current?.click()}
         >
           <div className="flex flex-col items-center gap-2">
@@ -193,9 +187,9 @@ export const ImageUpload = ({
           className="flex-1"
         />
         {urlInput && !previewUrl && (
-          <Button 
-            type="button" 
-            variant="outline" 
+          <Button
+            type="button"
+            variant="outline"
             size="icon"
             onClick={() => {
               const normalized = normalizeImageUrl(urlInput);
