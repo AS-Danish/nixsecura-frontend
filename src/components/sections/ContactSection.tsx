@@ -9,22 +9,22 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Visit Us",
-    details: ["123 Cyber Tower, Tech Park", "Bangalore, Karnataka 560001"],
+    details: ["1st Floor,Above Sodhi ENT Hospital,Opp Dwarka Grand Hotel,Usmanpura,Chh.Sambhaji Ngr"],
   },
   {
     icon: Phone,
     title: "Call Us",
-    details: ["+91 98765 43210", "+91 80 1234 5678"],
+    details: ["+91 7558302153"],
   },
   {
     icon: Mail,
     title: "Email Us",
-    details: ["info@cybershield.edu", "admissions@cybershield.edu"],
+    details: ["nixsecura@gmail.com"],
   },
   {
     icon: Clock,
     title: "Working Hours",
-    details: ["Mon - Sat: 9AM - 7PM", "Sunday: Closed"],
+    details: ["Mon - Sat: 10AM - 5PM", "Sunday: Closed"],
   },
 ];
 
@@ -149,7 +149,7 @@ export const ContactSection = () => {
                       value={formState.name}
                       onChange={(e) => setFormState({ ...formState, name: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground"
-                      placeholder="John Doe"
+                      placeholder="Your  Name"
                     />
                   </div>
                   <div>
@@ -160,7 +160,7 @@ export const ContactSection = () => {
                       value={formState.email}
                       onChange={(e) => setFormState({ ...formState, email: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground"
-                      placeholder="john@example.com"
+                      placeholder="youremail@example.com"
                     />
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export const ContactSection = () => {
                       value={formState.phone}
                       onChange={(e) => setFormState({ ...formState, phone: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground"
-                      placeholder="+91 98765 43210"
+                      placeholder="Your Phone Number"
                     />
                   </div>
                   <div>

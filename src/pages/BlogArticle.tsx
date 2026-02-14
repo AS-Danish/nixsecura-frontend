@@ -62,13 +62,13 @@ const BlogArticle = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       {/* Hero */}
       <section className="pt-24 pb-8 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img 
-            src={post.image || '/placeholder.svg'} 
-            alt={post.title} 
+          <img
+            src={post.image || '/placeholder.svg'}
+            alt={post.title}
             className="w-full h-full object-cover opacity-10"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -79,10 +79,10 @@ const BlogArticle = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
         </div>
-        
+
         <div className="container mx-auto px-4 lg:px-8 relative z-10">
-          <Link 
-            to="/blogs" 
+          <Link
+            to="/blogs"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -97,7 +97,7 @@ const BlogArticle = () => {
             <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-sm font-semibold rounded-full mb-4">
               {post.category}
             </span>
-            
+
             <h1 className="text-3xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
               {post.title}
             </h1>
@@ -147,7 +147,7 @@ const BlogArticle = () => {
               transition={{ delay: 0.3 }}
               className="lg:col-span-3"
             >
-              <div 
+              <div
                 className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground prose-strong:text-foreground prose-strong:font-bold prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
