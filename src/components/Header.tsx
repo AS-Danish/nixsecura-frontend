@@ -30,9 +30,7 @@ export const Header = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <Shield className="w-6 h-6 text-primary-foreground" />
-            </div>
+            <img src="/logo.png" alt="Nixsecura Logo" className="w-10 h-10 object-contain" />
             <span className="text-xl font-bold text-foreground">
               Nixsecura <span className="text-primary">Institute</span>
             </span>
