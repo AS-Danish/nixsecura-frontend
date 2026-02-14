@@ -36,8 +36,8 @@ const mapToTestimonial = (data: any): Testimonial => {
 };
 
 export const testimonialService = {
-  getAll: async (): Promise<Testimonial[]> => {
-    const response = await api.get('/api/testimonials');
+  getAll: async (params?: { limit?: number; featured?: boolean }): Promise<Testimonial[]> => {
+    const response = await api.get('/api/testimonials', { params });
     const data = Array.isArray(response.data) ? response.data : (response.data.data || []);
     return data.map(mapToTestimonial);
   },

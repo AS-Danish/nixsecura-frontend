@@ -1,27 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
-import { testimonialService, Testimonial } from "@/services/testimonialService";
+import { testimonialService } from "@/services/testimonialService";
+import { useQuery } from "@tanstack/react-query";
 
 export const TestimonialsSection = () => {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        const data = await testimonialService.getAll();
-        // Filter featured or take first 4
-        const featured = data.filter(t => t.is_featured).length > 0 
-          ? data.filter(t => t.is_featured).slice(0, 4)
-          : data.slice(0, 4);
-        setTestimonials(featured);
-      } catch (error) {
-        console.error("Failed to fetch testimonials", error);
-      }
-    };
-    fetchTestimonials();
-  }, []);
+  const { data: testimonials = [] } = useQuery({
+    queryKey: ['testimonials', 'home'],
+    queryFn: async () => {
+      // Try to get featured testimonials first
+      const featured = await testimonialService.getAll({ featured: true, limit: 4 });
+      if (featured.length > 0) return featured;
+      // Fallback to latest 4
+      return testimonialService.getAll({ limit: 4 });
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   const next = () => setCurrentIndex((prev) => testimonials.length > 0 ? (prev + 1) % testimonials.length : 0);
   const prev = () => setCurrentIndex((prev) => testimonials.length > 0 ? (prev - 1 + testimonials.length) % testimonials.length : 0);
@@ -113,7 +109,7 @@ export const TestimonialsSection = () => {
               >
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
-              
+
               {/* Dots */}
               {testimonials.length > 0 && (
                 <div className="flex gap-2">
@@ -121,9 +117,8 @@ export const TestimonialsSection = () => {
                     <button
                       key={index}
                       onClick={() => setCurrentIndex(index)}
-                      className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                        index === currentIndex ? "bg-primary w-8" : "bg-muted-foreground/30"
-                      }`}
+                      className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${index === currentIndex ? "bg-primary w-8" : "bg-muted-foreground/30"
+                        }`}
                       aria-label={`Go to testimonial ${index + 1}`}
                     />
                   ))}

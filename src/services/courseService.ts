@@ -55,7 +55,7 @@ export interface PaginatedResponse<T> {
 }
 
 export const courseService = {
-  getAll: async (params?: { search?: string; category?: string; page?: number }): Promise<PaginatedResponse<Course>> => {
+  getAll: async (params?: { search?: string; category?: string; page?: number; per_page?: number }): Promise<PaginatedResponse<Course>> => {
     const response = await api.get('/api/courses', { params });
     const data = response.data;
 

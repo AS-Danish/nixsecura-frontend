@@ -2,24 +2,18 @@ import { motion } from "framer-motion";
 import { ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { courses as dataset, Course } from "@/data/courses";
-import { useEffect, useState } from "react";
 import { courseService } from "@/services/courseService";
+import { useQuery } from "@tanstack/react-query";
 
 export const CoursesSection = () => {
-  const [merged, setMerged] = useState<Course[]>([]);
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const response = await courseService.getAll();
-        setMerged(response.data);
-      } catch {
-        console.error("Failed to fetch courses");
-      }
-    };
-    load();
-  }, []);
-  const latestSix = merged.slice(0, 6);
+  const { data: latestSix = [] } = useQuery({
+    queryKey: ['courses', 'home'],
+    queryFn: async () => {
+      const response = await courseService.getAll({ per_page: 6 });
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
   return (
     <section id="courses" className="py-20 lg:py-32 relative">
       <div className="container mx-auto px-4 lg:px-8">

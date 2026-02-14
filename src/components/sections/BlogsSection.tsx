@@ -2,24 +2,15 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { BlogPost } from "@/data/blogs";
 import { blogService } from "@/services/blogService";
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export const BlogsSection = () => {
-  const [displayedBlogs, setDisplayedBlogs] = useState<BlogPost[]>([]);
-
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const data = await blogService.getAll();
-        setDisplayedBlogs(data.slice(0, 3));
-      } catch (error) {
-        console.error("Failed to fetch blogs", error);
-      }
-    };
-    fetchBlogs();
-  }, []);
+  const { data: displayedBlogs = [] } = useQuery({
+    queryKey: ['blogs', 'home'],
+    queryFn: () => blogService.getAll({ limit: 3 }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   return (
     <section id="blogs" className="py-20 lg:py-32 bg-muted/30 relative">

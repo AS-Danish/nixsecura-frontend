@@ -26,8 +26,8 @@ const mapToBlogPost = (data: any): BlogPost => {
 };
 
 export const blogService = {
-  getAll: async (): Promise<BlogPost[]> => {
-    const response = await api.get('/api/blogs?_=' + new Date().getTime());
+  getAll: async (params?: { limit?: number }): Promise<BlogPost[]> => {
+    const response = await api.get('/api/blogs', { params });
     const data = Array.isArray(response.data) ? response.data : (response.data.data || []);
     return data.map(mapToBlogPost);
   },
