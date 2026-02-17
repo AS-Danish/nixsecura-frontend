@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login, isLoading } = useAuth();
@@ -18,7 +19,7 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
       navigate("/dashboard");
     } catch (error) {
       // Error handled in AuthContext
@@ -64,7 +65,7 @@ const Login = () => {
               </CardDescription>
             </div>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
@@ -106,14 +107,16 @@ const Login = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
-                  <input type="checkbox" className="rounded border-border" />
+              <div className="flex items-center">
+                <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    className="rounded border-border w-4 h-4 text-primary focus:ring-primary"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
                   Remember me
                 </label>
-                <a href="#" className="text-sm text-primary hover:underline">
-                  Forgot password?
-                </a>
               </div>
 
               <Button

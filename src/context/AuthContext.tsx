@@ -11,7 +11,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, remember?: boolean) => Promise<void>;
   logout: () => Promise<void>;
   register: (name: string, email: string, password: string, password_confirmation: string) => Promise<void>;
   isLoading: boolean;
@@ -45,16 +45,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, remember: boolean = false) => {
     setIsLoading(true);
     try {
       await getCsrfCookie();
-      await api.post('/login', { email, password });
-      
+      await api.post('/login', { email, password, remember });
+
       // Get user data
       const response = await api.get('/api/user');
       setUser(response.data);
-      
+
       toast({
         title: "Login Successful",
         description: "Welcome back!",
@@ -76,11 +76,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await getCsrfCookie();
       await api.post('/register', { name, email, password, password_confirmation });
-      
+
       // Get user data
       const response = await api.get('/api/user');
       setUser(response.data);
-      
+
       toast({
         title: "Registration Successful",
         description: "Welcome!",
