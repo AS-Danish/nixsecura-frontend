@@ -5,7 +5,8 @@ export interface Workshop {
   id: string;
   title: string;
   description?: string;
-  image?: string;
+  images: { id: number; image_path: string }[];
+  image?: string; // For backward compatibility in UI
   date: string;
   start_time?: string;
   end_time?: string;
@@ -18,7 +19,7 @@ export interface Workshop {
 export interface WorkshopInput {
   title: string;
   description?: string;
-  image?: string;
+  images: string[];
   date: string;
   start_time?: string;
   end_time?: string;
@@ -29,11 +30,16 @@ export interface WorkshopInput {
 }
 
 const mapToWorkshop = (data: any): Workshop => {
+  const images = Array.isArray(data.images) ? data.images : [];
+  // Use first image as main image or fall back to old 'image' field if exists (though migration removed it, API response might still have it through accessor)
+  const mainImage = images.length > 0 ? images[0].image_path : (data.image || '');
+
   return {
     id: data.id.toString(),
     title: data.title,
     description: data.description || '',
-    image: normalizeImageUrl(data.image),
+    images: images,
+    image: normalizeImageUrl(mainImage),
     date: data.date ? new Date(data.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     start_time: data.start_time || '',
     end_time: data.end_time || '',

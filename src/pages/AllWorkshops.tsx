@@ -33,32 +33,32 @@ const AllWorkshops = () => {
       filter === "all" ||
       (filter === "upcoming" && workshop.status === "upcoming") ||
       (filter === "registration-open" && workshop.status === "open");
-    
+
     const matchesSearch =
       searchQuery.trim() === "" ||
       workshop.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (workshop.description || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (workshop.location || "").toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     return matchesFilter && matchesSearch;
   });
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       {/* Hero */}
       <section className="pt-24 pb-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
         <div className="container mx-auto px-4 lg:px-8 relative z-10">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -87,11 +87,10 @@ const AllWorkshops = () => {
                 <button
                   key={option.value}
                   onClick={() => setFilter(option.value as typeof filter)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    filter === option.value
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === option.value
                       ? "bg-primary text-primary-foreground"
                       : "bg-card border border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30"
-                  }`}
+                    }`}
                 >
                   {option.label}
                 </button>

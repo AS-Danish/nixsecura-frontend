@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { workshopService, Workshop } from "@/services/workshopService";
-
+import { normalizeImageUrl } from "@/utils/imageUtils";
+import { Badge } from "@/components/ui/badge";
 export const WorkshopsSection = () => {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
 
@@ -52,82 +53,77 @@ export const WorkshopsSection = () => {
         {/* Workshops */}
         <div className="space-y-6">
           {displayedWorkshops.map((workshop, index) => (
-            <motion.div
-              key={workshop.id}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="bg-card rounded-2xl border border-border/50 p-6 lg:p-8 hover:border-primary/30 hover:shadow-lg transition-all duration-500"
-            >
-              <div className="flex flex-col lg:flex-row lg:items-center gap-6">
-                {/* Main Content */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <h3 className="text-xl lg:text-2xl font-semibold text-foreground">
-                      {workshop.title}
-                    </h3>
-                    {workshop.status === "open" && (
-                      <span className="px-2 py-0.5 bg-green-500/10 text-green-600 text-xs font-semibold rounded">
-                        Open
-                      </span>
-                    )}
-                  </div>
-                  {workshop.description && (
-                    <p className="text-muted-foreground mb-4">
-                      {workshop.description}
-                    </p>
-                  )}
-
-                  {/* Meta Info */}
-                  <div className="flex flex-wrap gap-4 text-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="w-4 h-4 text-primary" />
-                      {new Date(workshop.date).toLocaleDateString()}
+            <Link to={workshop.status === "open" ? `/workshop/${workshop.id}/register` : `/workshop/${workshop.id}`} key={workshop.id}>
+              <motion.div
+                initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-card rounded-2xl border border-border/50 overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all duration-500 group"
+              >
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Image - Added this section */}
+                  <div className="lg:w-1/3 h-48 lg:h-auto relative overflow-hidden">
+                    <img
+                      src={normalizeImageUrl(workshop.image)}
+                      alt={workshop.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute top-4 left-4">
+                      <Badge className={`${workshop.status === 'upcoming' ? 'bg-blue-500' :
+                        workshop.status === 'open' ? 'bg-green-500' :
+                          workshop.status === 'completed' ? 'bg-gray-500' :
+                            'bg-red-500'
+                        }`}>
+                        {workshop.status === 'upcoming' ? 'Upcoming' :
+                          workshop.status === 'open' ? 'Open' :
+                            workshop.status}
+                      </Badge>
                     </div>
-                    {workshop.start_time && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Clock className="w-4 h-4 text-primary" />
-                        {workshop.start_time}
-                      </div>
+                  </div>
+
+                  {/* Main Content */}
+                  <div className="flex-1 p-6 lg:p-8 flex flex-col justify-center">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xl lg:text-2xl font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {workshop.title}
+                      </h3>
+                    </div>
+
+                    {workshop.description && (
+                      <p className="text-muted-foreground mb-4 line-clamp-2">
+                        {workshop.description}
+                      </p>
                     )}
-                    {workshop.location && (
+
+                    {/* Meta Info */}
+                    <div className="flex flex-wrap gap-4 text-sm mt-auto">
                       <div className="flex items-center gap-2 text-muted-foreground">
-                        <MapPin className="w-4 h-4 text-primary" />
-                        {workshop.location}
+                        <Calendar className="w-4 h-4 text-primary" />
+                        {new Date(workshop.date).toLocaleDateString()}
                       </div>
-                    )}
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Users className="w-4 h-4 text-primary" />
-                      {workshop.max_participants && workshop.max_participants > 0 ? (
-                        <span>{workshop.max_participants} Seats</span>
-                      ) : (
-                        <span>Unlimited Seats</span>
+                      {workshop.start_time && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Clock className="w-4 h-4 text-primary" />
+                          {workshop.start_time.slice(0, 5)}
+                        </div>
+                      )}
+                      {workshop.location && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <MapPin className="w-4 h-4 text-primary" />
+                          {workshop.location}
+                        </div>
                       )}
                     </div>
                   </div>
-                </div>
 
-                {/* CTA */}
-                <div className="flex-shrink-0">
-                  {workshop.status === "open" ? (
-                    <Link to={`/workshop/${workshop.id}/register`}>
-                      <Button variant="hero" className="w-full lg:w-auto group">
-                        Register Now
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Link to={`/workshop/${workshop.id}`}>
-                      <Button variant="hero-ghost" className="w-full lg:w-auto group">
-                        View Details
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
-                  )}
+                  {/* CTA Arrow */}
+                  <div className="hidden lg:flex items-center pr-8 text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0">
+                    <ArrowRight className="w-8 h-8" />
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </div>
 

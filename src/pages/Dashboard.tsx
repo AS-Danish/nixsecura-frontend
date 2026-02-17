@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUpload } from "@/components/ImageUpload";
+import { MultiImageUpload } from "@/components/MultiImageUpload";
 import { blogService, BlogInput } from "@/services/blogService";
 import { BlogPost } from "@/data/blogs";
 import { Course } from "@/data/courses";
@@ -243,7 +244,7 @@ const Dashboard = () => {
   const [workshopForm, setWorkshopForm] = useState<WorkshopInput>({
     title: "",
     description: "",
-    image: "",
+    images: [],
     date: new Date().toISOString().split('T')[0],
     start_time: "",
     end_time: "",
@@ -373,7 +374,7 @@ const Dashboard = () => {
       setWorkshopForm({
         title: workshopModal.data.title || "",
         description: workshopModal.data.description || "",
-        image: workshopModal.data.image || "",
+        images: workshopModal.data.images ? workshopModal.data.images.map(img => img.image_path) : [],
         date: workshopModal.data.date || new Date().toISOString().split('T')[0],
         start_time: workshopModal.data.start_time || "",
         end_time: workshopModal.data.end_time || "",
@@ -386,7 +387,7 @@ const Dashboard = () => {
       setWorkshopForm({
         title: "",
         description: "",
-        image: "",
+        images: [],
         date: new Date().toISOString().split('T')[0],
         start_time: "",
         end_time: "",
@@ -661,6 +662,10 @@ const Dashboard = () => {
           toast({ title: "Validation Error", description: "Status is required.", variant: "destructive" });
           return;
         }
+        if (!workshopForm.images || workshopForm.images.length === 0) {
+          toast({ title: "Validation Error", description: "At least one image is required.", variant: "destructive" });
+          return;
+        }
 
         // Clean and prepare workshop data
         const cleanWorkshopData: WorkshopInput = {
@@ -669,7 +674,7 @@ const Dashboard = () => {
           status: workshopForm.status,
           description: workshopForm.description?.trim() || undefined,
           location: workshopForm.location?.trim() || undefined,
-          image: workshopForm.image?.trim() || undefined,
+          images: workshopForm.images,
           start_time: workshopForm.start_time?.trim() || undefined,
           end_time: workshopForm.end_time?.trim() || undefined,
           max_participants: workshopForm.max_participants || undefined,
@@ -1565,11 +1570,12 @@ const Dashboard = () => {
                 />
               </div>
             </div>
-            <ImageUpload
-              label="Workshop Image"
+            <MultiImageUpload
+              label="Workshop Images"
               placeholder="Enter image URL or upload"
-              value={workshopForm.image}
-              onChange={(url) => setWorkshopForm({ ...workshopForm, image: url })}
+              values={workshopForm.images}
+              onChange={(urls) => setWorkshopForm({ ...workshopForm, images: urls })}
+              maxImages={10}
             />
             <div className="space-y-2">
               <Label>Description</Label>
