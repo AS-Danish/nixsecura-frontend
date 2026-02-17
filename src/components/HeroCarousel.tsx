@@ -101,13 +101,15 @@ export const HeroCarousel = () => {
               <div className="flex flex-wrap gap-4">
                 <Button
                   className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-none px-8 py-6 text-base font-semibold transition-all duration-300 shadow-lg hover:shadow-primary/25 border-none"
+                  onClick={() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' })}
                 >
-                  Read More
+                  View Courses
                 </Button>
 
                 <Button
                   variant="outline"
                   className="bg-white hover:bg-gray-100 text-[#0F172A] rounded-none px-8 py-6 text-base font-bold border-none"
+                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   Join Now
                 </Button>
