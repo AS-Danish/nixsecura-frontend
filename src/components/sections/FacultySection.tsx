@@ -47,7 +47,7 @@ export const FacultySection = () => {
     <section id="faculty" className="py-20 lg:py-32 relative overflow-hidden bg-muted/30">
       {/* Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div 
+        <div
           className="absolute inset-0 opacity-[0.02]"
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--primary)) 1px, transparent 0)`,
@@ -70,7 +70,7 @@ export const FacultySection = () => {
             Learn from <span className="gradient-text">Industry Veterans</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Our faculty brings decades of combined experience from leading security firms, 
+            Our faculty brings decades of combined experience from leading security firms,
             ensuring you learn skills that matter in the real world.
           </p>
         </motion.div>
@@ -116,7 +116,7 @@ export const FacultySection = () => {
                   </motion.div>
                 )}
               </div>
-              
+
               <div className="text-center">
                 <h3 className="font-semibold text-foreground mb-1">{member.name}</h3>
                 <p className="text-sm text-muted-foreground mb-4">{member.specialization}</p>
@@ -153,7 +153,7 @@ export const FacultySection = () => {
               Practical Labs That <span className="gradient-text">Mirror Reality</span>
             </h3>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Our state-of-the-art labs are designed to give you hands-on experience 
+              Our state-of-the-art labs are designed to give you hands-on experience
               with the same tools and scenarios you'll encounter in your career.
             </p>
           </div>
@@ -206,19 +206,6 @@ export const FacultySection = () => {
               </motion.div>
             ))}
           </div>
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mt-12"
-        >
-          <Button variant="hero" size="lg">
-            Meet Our Full Team
-            <ArrowRight className="w-5 h-5" />
-          </Button>
         </motion.div>
       </div>
     </section>
