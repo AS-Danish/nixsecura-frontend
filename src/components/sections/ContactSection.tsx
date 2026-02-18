@@ -9,7 +9,7 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Visit Us",
-    details: ["1st Floor,Above Sodhi ENT Hospital,Opp Dwarka Grand Hotel,Usmanpura,Chh.Sambhaji Ngr"],
+    details: ["1st floor, Nixsecura services, above Sodhi ENT hospital, opp. Dwarka Grand Hotel, New Usmanpura, Chhatrapati Sambhajinagar, Maharashtra 431005"],
   },
   {
     icon: Phone,
@@ -236,13 +236,13 @@ export const ContactSection = () => {
             {/* Map Placeholder */}
             <div className="relative h-64 lg:h-80 rounded-3xl overflow-hidden border border-border/50">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.985594836957!2d77.59456831482204!3d12.971598590855!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44e6d%3A0xf8dfc3e8517e4fe0!2sBangalore%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1635774290000!5m2!1sen!2sin"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3752.3111413826787!2d75.32475927468451!3d19.86907952659811!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bdb99c4b9777b59%3A0x6ffbb5e6deabcf66!2sNixsecura%20Services!5e0!3m2!1sen!2sin!4v1771403239219!5m2!1sen!2sin"
                 className="w-full h-full grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="CyberShield Location"
+                title="Nixsecura Services Location"
               />
               <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-background/20 to-transparent" />
             </div>
