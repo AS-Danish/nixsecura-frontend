@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { Shield, Facebook, Twitter, Linkedin, Instagram, Youtube } from "lucide-react";
+import { useEffect, useState } from "react";
+import { courseService } from "@/services/courseService";
 
 const footerLinks = {
   courses: [
@@ -10,11 +12,11 @@ const footerLinks = {
     { label: "SOC Analyst", href: "#" },
   ],
   company: [
-    { label: "About Us", href: "#about" },
-    { label: "Careers", href: "#" },
-    { label: "Blog", href: "#blogs" },
-    { label: "Contact", href: "#contact" },
-    { label: "Partners", href: "#" },
+    { label: "About Us", href: "/about-us" },
+    { label: "Workshops", href: "/workshops" },
+    { label: "Blog", href: "/blogs" },
+    { label: "Gallery", href: "/#gallery" },
+    { label: "Contact", href: "/#contact" },
   ],
   resources: [
     { label: "Free Courses", href: "#" },
@@ -40,6 +42,21 @@ const socialLinks = [
 ];
 
 export const Footer = () => {
+  const [courses, setCourses] = useState<{ id: string; title: string }[]>([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const data = await courseService.getAll();
+        // Take latest 5 courses
+        setCourses(data.data.slice(0, 5).map(c => ({ id: c.id, title: c.title })));
+      } catch (error) {
+        console.error("Failed to fetch courses for footer", error);
+      }
+    };
+    fetchCourses();
+  }, []);
+
   return (
     <footer className="bg-foreground text-background relative overflow-hidden">
       {/* Main Footer */}
@@ -76,13 +93,17 @@ export const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Courses</h4>
             <ul className="space-y-3">
-              {footerLinks.courses.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-background/70 hover:text-primary transition-colors text-sm">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+              {courses.length > 0 ? (
+                courses.map((course) => (
+                  <li key={course.id}>
+                    <a href={`/course/${course.id}`} className="text-background/70 hover:text-primary transition-colors text-sm">
+                      {course.title}
+                    </a>
+                  </li>
+                ))
+              ) : (
+                <li className="text-background/50 text-sm">Loading...</li>
+              )}
             </ul>
           </div>
 
