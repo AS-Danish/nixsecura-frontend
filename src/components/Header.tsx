@@ -2,21 +2,43 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const navLinks = [
-  { label: "About", href: "#about" },
-  { label: "Courses", href: "#courses" },
-  { label: "Faculty", href: "#faculty" },
-  { label: "Workshops", href: "#workshops" },
-  { label: "Certificate", href: "#certificate" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Blogs", href: "#blogs" },
-  { label: "Contact", href: "#contact" },
+  { label: "About", href: "/about-us" },
+  { label: "Courses", href: "/courses" },
+  { label: "Faculty", href: "/#faculty" },
+  { label: "Workshops", href: "/workshops" },
+  { label: "Certificate", href: "/#certificate" },
+  { label: "Testimonials", href: "/#testimonials" },
+  { label: "Gallery", href: "/#gallery" },
+  { label: "Blogs", href: "/blogs" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleNavigation = (href: string) => {
+    setIsMobileMenuOpen(false);
+
+    if (href.startsWith("/#")) {
+      const hash = href.split("#")[1];
+      if (location.pathname === "/") {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+          window.history.pushState(null, "", href);
+        }
+      } else {
+        navigate(href);
+      }
+    } else {
+      navigate(href);
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -29,6 +51,10 @@ export const Header = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/");
+            }}
           >
             <img src="/logo.png" alt="Nixsecura Logo" className="w-10 h-10 object-contain" />
             <span className="text-xl font-bold text-foreground">
@@ -42,10 +68,14 @@ export const Header = () => {
               <motion.a
                 key={link.label}
                 href={link.href}
-                className="text-muted-foreground hover:text-foreground font-medium transition-colors animated-underline"
+                className="text-muted-foreground hover:text-foreground font-medium transition-colors animated-underline cursor-pointer"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigation(link.href);
+                }}
               >
                 {link.label}
               </motion.a>
@@ -59,7 +89,7 @@ export const Header = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Button variant="hero" size="sm" onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}>
+            <Button variant="hero" size="sm" onClick={() => handleNavigation("/#contact")}>
               Get Started
             </Button>
           </motion.div>
@@ -91,17 +121,17 @@ export const Header = () => {
                 <a
                   key={link.label}
                   href={link.href}
-                  className="text-muted-foreground hover:text-foreground font-medium transition-colors px-2 py-1"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-muted-foreground hover:text-foreground font-medium transition-colors px-2 py-1 cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavigation(link.href);
+                  }}
                 >
                   {link.label}
                 </a>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Button variant="hero" size="sm" onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-                }}>
+                <Button variant="hero" size="sm" onClick={() => handleNavigation("/#contact")}>
                   Get Started
                 </Button>
               </div>

@@ -20,6 +20,7 @@ const WorkshopRegister = lazy(() => import("./pages/WorkshopRegister"));
 const Login = lazy(() => import("./pages/Login"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
                 }
               />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/about-us" element={<AboutUs />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

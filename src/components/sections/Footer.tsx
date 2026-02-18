@@ -118,7 +118,7 @@ export const Footer = () => {
       <div className="border-t border-background/10">
         <div className="container mx-auto px-4 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm text-background/60">
-            <p>© 2026 Nixsecura Institute Everywhere. All rights reserved.</p>
+            <p>© 2026 Nixsecura Institute. All rights reserved.</p>
             <p>Designed by Abdul Salaam Danish</p>
           </div>
         </div>

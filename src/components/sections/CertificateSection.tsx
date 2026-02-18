@@ -90,24 +90,6 @@ export const CertificateSection = () => {
             );
           })}
         </div>
-
-        {/* Trust Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="mt-16 text-center"
-        >
-          <p className="text-muted-foreground text-sm mb-4">Recognized and trusted by</p>
-          <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-            {["NASSCOM", "CII", "DSCI", "ISACA", "EC-Council"].map((org) => (
-              <span key={org} className="text-foreground font-semibold text-lg tracking-wide">
-                {org}
-              </span>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   );

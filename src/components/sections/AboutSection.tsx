@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Target, Users, Award, Zap } from "lucide-react";
+import { Target, Users, Award, Zap, ArrowRight } from "lucide-react";
 
 const features = [
   {
@@ -48,15 +48,18 @@ export const AboutSection = () => {
               <span className="gradient-text block">Cyber Security Excellence</span>
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-              CyberShield Institute was founded with a singular vision: to bridge the gap between 
-              academic knowledge and industry requirements. We combine cutting-edge curriculum 
+              CyberShield Institute was founded with a singular vision: to bridge the gap between
+              academic knowledge and industry requirements. We combine cutting-edge curriculum
               with hands-on training to produce job-ready cyber security professionals.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              With both online and offline programs, we've trained over 5,000 professionals 
-              who now protect organizations across the globe. Our commitment to excellence 
               has made us a trusted name in cyber security education.
             </p>
+            <div className="mt-8">
+              <a href="/about-us" className="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all duration-300">
+                View More <ArrowRight className="w-5 h-5" />
+              </a>
+            </div>
           </motion.div>
 
           {/* Right - Features Grid */}
