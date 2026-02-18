@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, X, Send, Loader2 } from "lucide-react";
+import { Phone, X, Send, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { validateCallbackForm, sanitizeInput } from "@/utils/validation";
 
 export const FloatingCallback = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,9 +15,28 @@ export const FloatingCallback = () => {
     phone: "",
     preferredTime: "morning",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    // Sanitize
+    const sanitizedName = sanitizeInput(formData.name);
+    const sanitizedPhone = sanitizeInput(formData.phone);
+
+    // Validate
+    const validationErrors = validateCallbackForm(sanitizedName, sanitizedPhone);
+
+    if (validationErrors.length > 0) {
+      const newErrors: Record<string, string> = {};
+      validationErrors.forEach((error) => {
+        newErrors[error.field] = error.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -24,8 +44,8 @@ export const FloatingCallback = () => {
 
       const payload = {
         timestamp: new Date().toISOString(),
-        fullName: formData.name,
-        contactNumber: formData.phone,
+        fullName: sanitizedName,
+        contactNumber: sanitizedPhone,
         message: `Preferred Time: ${formData.preferredTime}`, // Mapping to message or specific field if available, reusing message for now
         source: "Floating Callback",
         type: "Callback Request"
@@ -115,8 +135,9 @@ export const FloatingCallback = () => {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
-                className="w-full px-4 py-3 bg-background border border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                className={`w-full px-4 py-3 bg-background border ${errors.name ? "border-destructive focus:border-destructive" : "border-border/50 focus:border-primary"} rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none transition-colors`}
               />
+              {errors.name && <p className="text-destructive text-xs mt-1">{errors.name}</p>}
             </div>
 
             <div>
@@ -129,8 +150,9 @@ export const FloatingCallback = () => {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 required
-                className="w-full px-4 py-3 bg-background border border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                className={`w-full px-4 py-3 bg-background border ${errors.phone ? "border-destructive focus:border-destructive" : "border-border/50 focus:border-primary"} rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none transition-colors`}
               />
+              {errors.phone && <p className="text-destructive text-xs mt-1">{errors.phone}</p>}
             </div>
 
             <div>

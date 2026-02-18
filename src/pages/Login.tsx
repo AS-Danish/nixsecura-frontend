@@ -1,28 +1,41 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Shield, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Shield, Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import { validateLoginForm, sanitizeInput } from "@/utils/validation";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { login, isLoading } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    const sanitizedEmail = sanitizeInput(email);
+    const validationError = validateLoginForm(sanitizedEmail);
+
+    if (validationError) {
+      setError(validationError.message);
+      return;
+    }
+
     try {
-      await login(email, password, rememberMe);
+      await login(sanitizedEmail, password, rememberMe);
       navigate("/dashboard");
     } catch (error) {
-      // Error handled in AuthContext
+      // Error handled in AuthContext or backend response
+      setError("Invalid credentials or server error");
     }
   };
 
@@ -68,6 +81,12 @@ const Login = () => {
 
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
+              {error && (
+                <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-foreground">Email</Label>
                 <div className="relative">

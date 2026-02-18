@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle, Loader2 } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { courseService } from "@/services/courseService";
 import { useToast } from "@/hooks/use-toast";
+import { validateContactForm, sanitizeInput, ValidationError } from "@/utils/validation";
 
 const contactInfo = [
   {
@@ -37,6 +38,7 @@ export const ContactSection = () => {
     course: "", // Stores course ID
     message: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [courses, setCourses] = useState<{ id: number; title: string }[]>([]);
@@ -55,6 +57,26 @@ export const ContactSection = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    // Sanitize inputs
+    const sanitizedName = sanitizeInput(formState.name);
+    const sanitizedEmail = sanitizeInput(formState.email);
+    const sanitizedPhone = sanitizeInput(formState.phone);
+    const sanitizedMessage = sanitizeInput(formState.message);
+
+    // Validate
+    const validationErrors = validateContactForm(sanitizedName, sanitizedEmail, sanitizedPhone, sanitizedMessage);
+
+    if (validationErrors.length > 0) {
+      const newErrors: Record<string, string> = {};
+      validationErrors.forEach((error) => {
+        newErrors[error.field] = error.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -66,11 +88,11 @@ export const ContactSection = () => {
 
       const payload = {
         timestamp: new Date().toISOString(),
-        fullName: formState.name,
-        email: formState.email,
-        contactNumber: formState.phone,
+        fullName: sanitizedName,
+        email: sanitizedEmail,
+        contactNumber: sanitizedPhone,
         courseName: courseName,
-        message: formState.message,
+        message: sanitizedMessage,
         source: "Contact Form",
         type: "Contact Us"
       };
@@ -148,9 +170,10 @@ export const ContactSection = () => {
                       required
                       value={formState.name}
                       onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground"
+                      className={`w-full px-4 py-3 rounded-xl bg-background border ${errors.name ? "border-destructive focus:border-destructive" : "border-border focus:border-primary"} focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground`}
                       placeholder="Your  Name"
                     />
+                    {errors.name && <p className="text-destructive text-xs mt-1">{errors.name}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">Email *</label>
@@ -159,9 +182,10 @@ export const ContactSection = () => {
                       required
                       value={formState.email}
                       onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground"
+                      className={`w-full px-4 py-3 rounded-xl bg-background border ${errors.email ? "border-destructive focus:border-destructive" : "border-border focus:border-primary"} focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground`}
                       placeholder="youremail@example.com"
                     />
+                    {errors.email && <p className="text-destructive text-xs mt-1">{errors.email}</p>}
                   </div>
                 </div>
 
@@ -173,9 +197,10 @@ export const ContactSection = () => {
                       required
                       value={formState.phone}
                       onChange={(e) => setFormState({ ...formState, phone: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground"
+                      className={`w-full px-4 py-3 rounded-xl bg-background border ${errors.phone ? "border-destructive focus:border-destructive" : "border-border focus:border-primary"} focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground`}
                       placeholder="Your Phone Number"
                     />
+                    {errors.phone && <p className="text-destructive text-xs mt-1">{errors.phone}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">Interested Course</label>
@@ -198,9 +223,10 @@ export const ContactSection = () => {
                     rows={4}
                     value={formState.message}
                     onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none text-foreground"
+                    className={`w-full px-4 py-3 rounded-xl bg-background border ${errors.message ? "border-destructive focus:border-destructive" : "border-border focus:border-primary"} focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none text-foreground`}
                     placeholder="Tell us about your goals..."
                   />
+                  {errors.message && <p className="text-destructive text-xs mt-1">{errors.message}</p>}
                 </div>
 
                 <Button type="submit" variant="hero" size="lg" className="w-full group" disabled={isSubmitting}>
