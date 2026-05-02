@@ -79,11 +79,12 @@ const CourseDetail = () => {
             Back to Courses
           </motion.button>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-12 gap-12 items-start relative">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="lg:col-span-7 relative z-10 min-w-0"
             >
               <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-sm font-semibold rounded-full mb-4">
                 {course.category}
@@ -92,7 +93,7 @@ const CourseDetail = () => {
                 {course.title}
               </h1>
               <div
-                className="prose prose-sm max-w-none text-muted-foreground mb-8 leading-relaxed"
+                className="prose prose-sm max-w-none text-muted-foreground mb-8 leading-relaxed break-words overflow-hidden"
                 dangerouslySetInnerHTML={{ __html: course.description }}
               />
 
@@ -109,18 +110,20 @@ const CourseDetail = () => {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {course.highlights.map((highlight, index) => (
-                  <motion.span
+                  <motion.div
                     key={index}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1 * index }}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-card border border-border/50 rounded-lg text-sm"
+                    className="flex items-center gap-3 px-4 py-3 bg-card border border-border/50 rounded-xl text-sm shadow-sm"
                   >
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    {highlight}
-                  </motion.span>
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5 text-primary" />
+                    </div>
+                    <span className="font-medium text-foreground/80">{highlight}</span>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
@@ -129,19 +132,22 @@ const CourseDetail = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
+              className="lg:col-span-5 relative lg:sticky lg:top-24"
             >
-              <img
-                src={course.image || '/placeholder.svg'}
-                alt={course.title}
-                className="w-full rounded-2xl shadow-hero"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  if (target.src !== '/placeholder.svg') {
-                    target.src = '/placeholder.svg';
-                  }
-                }}
-              />
+              <div className="relative group">
+                <div className="absolute -inset-4 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-[2rem] blur-2xl opacity-50 group-hover:opacity-75 transition-opacity" />
+                <img
+                  src={course.image || '/placeholder.svg'}
+                  alt={course.title}
+                  className="relative w-full h-auto object-cover rounded-2xl shadow-hero border border-white/10"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== '/placeholder.svg') {
+                      target.src = '/placeholder.svg';
+                    }
+                  }}
+                />
+              </div>
             </motion.div>
           </div>
         </div>
